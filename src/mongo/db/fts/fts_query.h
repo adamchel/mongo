@@ -71,6 +71,10 @@ public:
         return _termsForBounds;
     }
 
+    const std::set<std::string>& getNegTermsForBounds() const {
+        return _negTermsForBounds;
+    }
+
     const FTSLanguage& getLanguage() const {
         return *_language;
     }
@@ -111,6 +115,10 @@ private:
 
     // Terms for bounds.
     std::set<std::string> _termsForBounds;
+
+    // Negated terms for bounds.
+    std::set<std::string> _negTermsForBounds;
+
 };
 }
 }

@@ -44,6 +44,8 @@
 #include <queue>
 #include <vector>
 
+const int NegativeIndexScanThreshold = 50;
+
 namespace mongo {
 
 using fts::FTSIndexFormat;
@@ -51,6 +53,8 @@ using fts::FTSMatcher;
 using fts::FTSQuery;
 using fts::FTSSpec;
 using fts::MAX_WEIGHT;
+
+using std::string;
 
 class OperationContext;
 
@@ -133,6 +137,11 @@ private:
     StageState initScans(WorkingSetID* out);
 
     /**
+     * Helper called from initScans to populate one of the term scanner sets.
+     */
+    void addTermScanner(OwnedPointerVector<PlanStage>& scannerSet, const string& term);
+
+    /**
      * Helper for buffering results array.  Returns NEED_TIME (if any results were produced),
      * IS_EOF, or FAILURE.
      */
@@ -177,6 +186,13 @@ private:
     // terms.
     OwnedPointerVector<PlanStage> _scanners;
 
+    OwnedPointerVector<PlanStage> _negativeScanners;
+
+    OwnedPointerVector<PlanStage>* _curScannerSet;
+
+    // Whether or not to scan negative indexes or do fetching instead
+    bool _doNegativeIndexScan;
+
     // Which _scanners are we currently reading from?
     size_t _currentIndexScanner;
 
@@ -195,7 +211,11 @@ private:
     // Maps from diskloc -> (aggregate score for doc, wsid).
     typedef unordered_map<RecordId, TextRecordData, RecordId::Hasher> ScoreMap;
     ScoreMap _scores;
+    ScoreMap _negativeScores;
+    ScoreMap _filteredScores;
     ScoreMap::const_iterator _scoreIterator;
+
+    ScoreMap* _curScoreMap;
 
     // Used for fetching records from the collection.
     std::unique_ptr<RecordCursor> _recordCursor;

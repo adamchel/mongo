@@ -59,6 +59,7 @@ TextStage::TextStage(OperationContext* txn,
       _filter(filter),
       _commonStats(kStageType),
       _internalState(INIT_SCANS),
+      _doNegativeIndexScan(false),
       _currentIndexScanner(0),
       _idRetrying(WorkingSet::INVALID_ID) {
     _scoreIterator = _scores.end();
@@ -93,6 +94,7 @@ PlanStage::StageState TextStage::work(WorkingSetID* out) {
                 // Reset and try again next time.
                 _internalState = INIT_SCANS;
                 _scanners.clear();
+                _negativeScanners.clear();
                 *out = WorkingSet::INVALID_ID;
                 stageState = NEED_YIELD;
             }
@@ -135,6 +137,10 @@ void TextStage::saveState() {
         _scanners.mutableVector()[i]->saveState();
     }
 
+    for (size_t i = 0; i < _negativeScanners.size(); ++i) {
+        _negativeScanners.mutableVector()[i]->saveState();
+    }
+
     if (_recordCursor)
         _recordCursor->saveUnpositioned();
 }
@@ -148,6 +154,11 @@ void TextStage::restoreState(OperationContext* opCtx) {
         _scanners.mutableVector()[i]->restoreState(opCtx);
     }
 
+    for (size_t i = 0; i < _negativeScanners.size(); ++i) {
+        _negativeScanners.mutableVector()[i]->restoreState(opCtx);
+    }
+
+
     if (_recordCursor)
         invariant(_recordCursor->restore(opCtx));
 }
@@ -160,15 +171,20 @@ void TextStage::invalidate(OperationContext* txn, const RecordId& dl, Invalidati
         _scanners.mutableVector()[i]->invalidate(txn, dl, type);
     }
 
+    // Propagate invalidate to negative scanner children.
+    for (size_t i = 0; i < _negativeScanners.size(); ++i) {
+        _negativeScanners.mutableVector()[i]->invalidate(txn, dl, type);
+    }
+
     // We store the score keyed by RecordId.  We have to toss out our state when the RecordId
     // changes.
     // TODO: If we're RETURNING_RESULTS we could somehow buffer the object.
-    ScoreMap::iterator scoreIt = _scores.find(dl);
-    if (scoreIt != _scores.end()) {
+    ScoreMap::iterator scoreIt = _curScoreMap->find(dl);
+    if (scoreIt != _curScoreMap->end()) {
         if (scoreIt == _scoreIterator) {
             _scoreIterator++;
         }
-        _scores.erase(scoreIt);
+        _curScoreMap->erase(scoreIt);
     }
 }
 
@@ -200,37 +216,53 @@ const SpecificStats* TextStage::getSpecificStats() const {
     return &_specificStats;
 }
 
+void TextStage::addTermScanner(OwnedPointerVector<PlanStage>& scannerSet, const string& term) {
+    IndexScanParams params;
+    params.bounds.startKey = FTSIndexFormat::getIndexKey(
+        MAX_WEIGHT, term, _params.indexPrefix, _params.spec.getTextIndexVersion());
+    params.bounds.endKey = FTSIndexFormat::getIndexKey(
+        0, term, _params.indexPrefix, _params.spec.getTextIndexVersion());
+    params.bounds.endKeyInclusive = true;
+    params.bounds.isSimpleRange = true;
+    params.descriptor = _params.index;
+    params.direction = -1;
+    scannerSet.mutableVector().push_back(new IndexScan(_txn, params, _ws, NULL));
+}
+
 PlanStage::StageState TextStage::initScans(WorkingSetID* out) {
     invariant(0 == _scanners.size());
+    invariant(0 == _negativeScanners.size());
 
     _recordCursor = _params.index->getCollection()->getCursor(_txn);
 
     _specificStats.parsedTextQuery = _params.query.toBSON();
 
-    // Get all the index scans for each term in our query.
+    // Get all the index scans for each term in our query, and populate the positive scanner set.
     // TODO it would be more efficient to only have one active scan at a time and create the
     // next when each finishes.
     for (std::set<std::string>::const_iterator it = _params.query.getTermsForBounds().begin();
          it != _params.query.getTermsForBounds().end();
          ++it) {
-        const string& term = *it;
-        IndexScanParams params;
-        params.bounds.startKey = FTSIndexFormat::getIndexKey(
-            MAX_WEIGHT, term, _params.indexPrefix, _params.spec.getTextIndexVersion());
-        params.bounds.endKey = FTSIndexFormat::getIndexKey(
-            0, term, _params.indexPrefix, _params.spec.getTextIndexVersion());
-        params.bounds.endKeyInclusive = true;
-        params.bounds.isSimpleRange = true;
-        params.descriptor = _params.index;
-        params.direction = -1;
-        _scanners.mutableVector().push_back(new IndexScan(_txn, params, _ws, NULL));
+        addTermScanner(_scanners, *it);
     }
 
-    // If we have no terms we go right to EOF.
+    // If we have no terms we go right to EOF
     if (0 == _scanners.size()) {
         _internalState = DONE;
         return PlanStage::IS_EOF;
     }
+
+    // Get all the index scans for negated terms as well, populating the negated scanner set
+    // We may or may not use them, dependings on how many documents we get with positive terms
+    for (std::set<std::string>::const_iterator it = _params.query.getNegTermsForBounds().begin();
+         it != _params.query.getNegTermsForBounds().end();
+         ++it) {
+        addTermScanner(_negativeScanners, *it);
+    }
+
+    // Start the read stage with the positive term scanners
+    _curScannerSet = &_scanners;
+    _curScoreMap = &_scores;
 
     // Transition to the next state.
     _internalState = READING_TERMS;
@@ -239,13 +271,14 @@ PlanStage::StageState TextStage::initScans(WorkingSetID* out) {
 
 PlanStage::StageState TextStage::readFromSubScanners(WorkingSetID* out) {
     // This should be checked before we get here.
-    invariant(_currentIndexScanner < _scanners.size());
+    invariant(_currentIndexScanner < _curScannerSet->size());
 
     // Either retry the last WSM we worked on or get a new one from our current scanner.
     WorkingSetID id;
     StageState childState;
     if (_idRetrying == WorkingSet::INVALID_ID) {
-        childState = _scanners.vector()[_currentIndexScanner]->work(&id);
+        childState = _curScannerSet->vector()[_currentIndexScanner]->work(&id);
+
     } else {
         childState = ADVANCED;
         id = _idRetrying;
@@ -258,17 +291,46 @@ PlanStage::StageState TextStage::readFromSubScanners(WorkingSetID* out) {
         // Done with this scan.
         ++_currentIndexScanner;
 
-        if (_currentIndexScanner < _scanners.size()) {
+        if (_currentIndexScanner < _curScannerSet->size()) {
             // We have another scan to read from.
             return PlanStage::NEED_TIME;
         }
 
-        // If we're here we are done reading results.  Move to the next state.
-        _scoreIterator = _scores.begin();
-        _internalState = RETURNING_RESULTS;
+        // We're done with these scanners
+        _curScannerSet->clear();
 
-        // Don't need to keep these around.
-        _scanners.clear();
+        // If we're here we are done with scanners from the current scanner set
+        // Start doing negative scans if we can, should, and haven't already
+        if (_negativeScanners.size() > 0 && _scores.size() > NegativeIndexScanThreshold) {
+            _doNegativeIndexScan = true;
+        }
+
+        if (_doNegativeIndexScan && _negativeScanners.size() > 0) {
+            _curScannerSet = &_negativeScanners;
+            _curScoreMap = &_negativeScores;
+            _currentIndexScanner = 0;
+            return PlanStage::NEED_TIME;
+        }
+
+        // If we're here we are done reading results.  Move to the next state, setting our score
+        // iterator
+        // based on whether or not we did an index scan of negative terms.
+        if (_doNegativeIndexScan) {
+            // Compute set difference (_scores - _negativeScores) = _filteredScores
+            for (auto it = _scores.begin(); it != _scores.end(); ++it) {
+                if (_negativeScores.find(it->first) == _negativeScores.end()) {
+                    _filteredScores.insert(*it);
+                }
+            }
+
+            _scoreIterator = _filteredScores.begin();
+            _curScoreMap = &_filteredScores;
+        } else {
+            _scoreIterator = _scores.begin();
+            _curScoreMap = &_scores;
+        }
+
+        _internalState = RETURNING_RESULTS;
         return PlanStage::NEED_TIME;
     } else {
         // Propagate WSID from below.
@@ -305,6 +367,8 @@ PlanStage::StageState TextStage::returnResults(WorkingSetID* out) {
     }
 
     WorkingSetMember* wsm = _ws->get(textRecordData.wsid);
+
+    // Fetch document (necessary for returning to user)
     try {
         if (!WorkingSetCommon::fetchIfUnfetched(_txn, wsm, _recordCursor)) {
             _scoreIterator++;
@@ -319,12 +383,38 @@ PlanStage::StageState TextStage::returnResults(WorkingSetID* out) {
         return NEED_YIELD;
     }
 
+    // Increase fetch stats and move to next score in iterator
+    ++_specificStats.fetches;
     _scoreIterator++;
 
-    // Filter for phrases and negated terms
-    if (!_ftsMatcher.matches(wsm->obj.value())) {
-        _ws->free(textRecordData.wsid);
-        return PlanStage::NEED_TIME;
+    bool queryHasNegatedTerms = _params.query.getNegatedTerms().size() > 0;
+    bool queryHasPositivePhrases = _params.query.getPositivePhr().size() > 0;
+    bool queryHasNegatedPhrases = _params.query.getNegatedPhr().size() > 0;
+    bool queryIsCaseSensitive = _params.query.getCaseSensitive();
+
+    // Filter for phrases (and negated terms if we didn't do an index scan on negated terms)
+    if (_doNegativeIndexScan) {
+        // Since the set difference filtered negated terms, we just need to check for phrases
+        if (queryIsCaseSensitive || queryHasPositivePhrases || queryHasNegatedPhrases) {
+            bool positivePhrasesMatch =
+                queryIsCaseSensitive ? !_ftsMatcher.positivePhrasesMatch(wsm->obj.value()) : true;
+
+            if (!positivePhrasesMatch || !_ftsMatcher.positivePhrasesMatch(wsm->obj.value()) ||
+                !_ftsMatcher.negativePhrasesMatch(wsm->obj.value())) {
+                _ws->free(textRecordData.wsid);
+                return PlanStage::NEED_TIME;
+            }
+        }
+    } else {
+        // Filter for negated terms and both positive and negated phrases (and positive terms if
+        // case senstive)
+        if (queryIsCaseSensitive || queryHasNegatedTerms || queryHasPositivePhrases ||
+            queryHasNegatedPhrases) {
+            if (!_ftsMatcher.matches(wsm->obj.value())) {
+                _ws->free(textRecordData.wsid);
+                return PlanStage::NEED_TIME;
+            }
+        }
     }
 
     // Populate the working set member with the text score and return it.
@@ -401,7 +491,7 @@ PlanStage::StageState TextStage::addTerm(WorkingSetID wsid, WorkingSetID* out) {
     invariant(1 == wsm->keyData.size());
     const IndexKeyDatum newKeyData = wsm->keyData.back();  // copy to keep it around.
 
-    TextRecordData* textRecordData = &_scores[wsm->loc];
+    TextRecordData* textRecordData = &(*_curScoreMap)[wsm->loc];
     double* documentAggregateScore = &textRecordData->score;
 
     if (WorkingSet::INVALID_ID == textRecordData->wsid) {
@@ -439,8 +529,8 @@ PlanStage::StageState TextStage::addTerm(WorkingSetID wsid, WorkingSetID* out) {
                 return NEED_TIME;
             }
         } else {
-            // If we're here, we're going to return the doc, and we do a fetch later.
-            ++_specificStats.fetches;
+            // If we're here, we're possibly going to return the doc, and we might do a fetch later.
+            // moved fetch stats increment to TextStage::returnResults
         }
     } else {
         // We already have a working set member for this RecordId. Free the new

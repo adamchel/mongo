@@ -135,6 +135,8 @@ void FTSQuery::_addTerms(FTSTokenizer* tokenizer, const string& sentence, bool n
     tokenizer->reset(sentence.c_str(), FTSTokenizer::FilterStopWords);
 
     auto& activeTerms = negated ? _negatedTerms : _positiveTerms;
+    auto& activeTermsForBounds = negated ? _negTermsForBounds : _termsForBounds;
+
 
     // First, get all the terms for indexing, ie, lower cased words
     // If we are case-insensitive, we can also used this for positive, and negative terms
@@ -142,9 +144,7 @@ void FTSQuery::_addTerms(FTSTokenizer* tokenizer, const string& sentence, bool n
     while (tokenizer->moveNext()) {
         string word = tokenizer->get().toString();
 
-        if (!negated) {
-            _termsForBounds.insert(word);
-        }
+        activeTermsForBounds.insert(word);
 
         // Compute the string corresponding to 'token' that will be used for the matcher.
         // For case-insensitive queries, this is the same string as 'boundsTerm' computed
