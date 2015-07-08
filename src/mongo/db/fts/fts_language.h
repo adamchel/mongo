@@ -41,11 +41,11 @@ namespace fts {
 
 class FTSTokenizer;
 
-#define MONGO_FTS_LANGUAGE_DECLARE(language, name, version)                                    \
-    BasicFTSLanguage language;                                                                 \
+#define MONGO_FTS_LANGUAGE_DECLARE(language, name, minversion)                                 \
+    BasicFTSLanguage language;                                                     \
     MONGO_INITIALIZER_GENERAL(language, MONGO_NO_PREREQUISITES, ("FTSAllLanguagesRegistered")) \
     (::mongo::InitializerContext * context) {                                                  \
-        FTSLanguage::registerLanguage(name, version, &language);                               \
+        FTSLanguage::registerLanguage(name, minversion, &language);                            \
         return Status::OK();                                                                   \
     }
 
@@ -87,13 +87,12 @@ public:
     virtual std::unique_ptr<FTSTokenizer> createTokenizer() const = 0;
 
     /**
-     * Register std::string 'languageName' as a new language with text index version
-     * 'textIndexVersion'.  Saves the resulting language to out-argument 'languageOut'.
-     * Subsequent calls to FTSLanguage::make() will recognize the newly-registered language
-     * string.
+     * Register std::string 'languageName' as a new language with the minimum text index version
+     * 'minTextIndexVersion'.  Saves the resulting language to out-argument 'languageOut'.
+     * Subsequent calls to FTSLanguage::make() will recognize the newly-registered language string.
      */
     static void registerLanguage(StringData languageName,
-                                 TextIndexVersion textIndexVersion,
+                                 TextIndexVersion minTextIndexVersion,
                                  FTSLanguage* languageOut);
 
     /**
@@ -123,9 +122,23 @@ public:
     static StatusWith<const FTSLanguage*> make(StringData langName,
                                                TextIndexVersion textIndexVersion);
 
-private:
+protected:
+    /**
+     * Helper called by make(). Returns a clone of this language, but with a higher text index
+     * version. It is an error to call cloneWithIndexVersion() on an unitialized language. It is
+     * also an error to call this with a textIndexVersion less than _minTextIndexVersion.
+     */
+    virtual std::unique_ptr<FTSLanguage> cloneWithIndexVersion(TextIndexVersion textIndexVersion) const = 0;
+
+
+    TextIndexVersion _minTextIndexVersion;
+    TextIndexVersion _textIndexVersion;
+
     // std::string representation of language in canonical form.
     std::string _canonicalName;
+
+private:
+
 };
 
 typedef StatusWith<const FTSLanguage*> StatusWithFTSLanguage;
@@ -134,6 +147,9 @@ typedef StatusWith<const FTSLanguage*> StatusWithFTSLanguage;
 class BasicFTSLanguage : public FTSLanguage {
 public:
     std::unique_ptr<FTSTokenizer> createTokenizer() const override;
+
+private:
+    std::unique_ptr<FTSLanguage> cloneWithIndexVersion(TextIndexVersion textIndexVersion) const override;
 };
 
 extern BasicFTSLanguage languagePorterV1;

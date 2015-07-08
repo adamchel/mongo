@@ -71,7 +71,7 @@ struct LanguageStringCompare {
 
 // Lookup table from user language string (case-insensitive) to FTSLanguage.  Populated
 // by initializers in group FTSAllLanguagesRegistered and initializer
-// FTSRegisterLanguageAliases.  For use with TEXT_INDEX_VERSION_2 text indexes only.
+// FTSRegisterLanguageAliases.  For use with TEXT_INDEX_VERSION_2 text indexes and above.
 typedef std::map<std::string, const FTSLanguage*, LanguageStringCompare> LanguageMapV2;
 LanguageMapV2 languageMapV2;
 
@@ -190,36 +190,33 @@ MONGO_INITIALIZER_WITH_PREREQUISITES(FTSRegisterLanguageAliases, ("FTSAllLanguag
 
 // static
 void FTSLanguage::registerLanguage(StringData languageName,
-                                   TextIndexVersion textIndexVersion,
+                                   TextIndexVersion minTextIndexVersion,
                                    FTSLanguage* language) {
     verify(!languageName.empty());
     language->_canonicalName = languageName.toString();
-    switch (textIndexVersion) {
-        case TEXT_INDEX_VERSION_2:
-            languageMapV2[languageName.toString()] = language;
-            return;
-        case TEXT_INDEX_VERSION_1:
-            verify(languageMapV1.find(languageName) == languageMapV1.end());
-            languageMapV1[languageName] = language;
-            return;
+    language->_minTextIndexVersion = minTextIndexVersion;
+    language->_textIndexVersion    = minTextIndexVersion;
+
+    if(minTextIndexVersion >= TEXT_INDEX_VERSION_2) {
+        languageMapV2[languageName.toString()] = language;
+    } else { // legacy text index
+        invariant(minTextIndexVersion == TEXT_INDEX_VERSION_1);
+        verify(languageMapV1.find(languageName) == languageMapV1.end());
+        languageMapV1[languageName] = language;
     }
-    verify(false);
 }
 
 // static
 void FTSLanguage::registerLanguageAlias(const FTSLanguage* language,
                                         StringData alias,
-                                        TextIndexVersion textIndexVersion) {
-    switch (textIndexVersion) {
-        case TEXT_INDEX_VERSION_2:
-            languageMapV2[alias.toString()] = language;
-            return;
-        case TEXT_INDEX_VERSION_1:
-            verify(languageMapV1.find(alias) == languageMapV1.end());
-            languageMapV1[alias] = language;
-            return;
+                                        TextIndexVersion minTextIndexVersion) {
+    if (minTextIndexVersion >= TEXT_INDEX_VERSION_2) {
+        languageMapV2[alias.toString()] = language;
+    } else { // legacy text index
+        invariant(minTextIndexVersion == TEXT_INDEX_VERSION_1);
+        verify(languageMapV1.find(alias) == languageMapV1.end());
+        languageMapV1[alias] = language;
     }
-    verify(false);
 }
 
 FTSLanguage::FTSLanguage() : _canonicalName() {}
@@ -229,33 +226,52 @@ const std::string& FTSLanguage::str() const {
     return _canonicalName;
 }
 
+std::unique_ptr<FTSLanguage> BasicFTSLanguage::cloneWithIndexVersion(TextIndexVersion textIndexVersion) const {
+    invariant(textIndexVersion >= _minTextIndexVersion);
+
+    auto clone = stdx::make_unique<BasicFTSLanguage>();
+    clone->_canonicalName = str();
+    clone->_minTextIndexVersion = _minTextIndexVersion;
+    clone->_textIndexVersion = textIndexVersion;
+    
+    std::unique_ptr<FTSLanguage> ftsLanguageClone = std::move(clone);
+
+    return ftsLanguageClone;
+}
+
 // static
 StatusWithFTSLanguage FTSLanguage::make(StringData langName, TextIndexVersion textIndexVersion) {
-    switch (textIndexVersion) {
-        case TEXT_INDEX_VERSION_2: {
-            LanguageMapV2::const_iterator it = languageMapV2.find(langName.toString());
-            if (it == languageMapV2.end()) {
-                // TEXT_INDEX_VERSION_2 rejects unrecognized language strings.
-                Status status = Status(ErrorCodes::BadValue,
-                                       mongoutils::str::stream() << "unsupported language: \""
-                                                                 << langName << "\"");
-                return StatusWithFTSLanguage(status);
-            }
+    if (textIndexVersion >= TEXT_INDEX_VERSION_2) {
+        LanguageMapV2::const_iterator it = languageMapV2.find(langName.toString());
+        if (it == languageMapV2.end()) {
+            // TEXT_INDEX_VERSION_2 rejects unrecognized language strings.
+            Status status = Status(ErrorCodes::BadValue,
+                                   mongoutils::str::stream() << "unsupported language: \""
+                                                             << langName << "\"");
+            return StatusWithFTSLanguage(status);
+        }
 
-            return StatusWithFTSLanguage(it->second);
+        const FTSLanguage* foundLangauge = it->second;
+        if(textIndexVersion > foundLangauge->_minTextIndexVersion) {
+            return StatusWithFTSLanguage(foundLangauge->cloneWithIndexVersion(textIndexVersion).get());
+        } else if (textIndexVersion < foundLangauge->_minTextIndexVersion) {
+            Status status = Status(ErrorCodes::BadValue,
+                                   mongoutils::str::stream() << "text index version "
+                                                             << textIndexVersion 
+                                                             << " too low for language: \""
+                                                             << langName << "\"");
+            return StatusWithFTSLanguage(status);
         }
-        case TEXT_INDEX_VERSION_1: {
-            LanguageMapV1::const_iterator it = languageMapV1.find(langName);
-            if (it == languageMapV1.end()) {
-                // TEXT_INDEX_VERSION_1 treats unrecognized language strings as "none".
-                return StatusWithFTSLanguage(&languageNoneV1);
-            }
-            return StatusWithFTSLanguage(it->second);
+        return StatusWithFTSLanguage(it->second);
+    } else { // legacy text index
+        invariant(textIndexVersion == TEXT_INDEX_VERSION_1);
+        LanguageMapV1::const_iterator it = languageMapV1.find(langName);
+        if (it == languageMapV1.end()) {
+            // TEXT_INDEX_VERSION_1 treats unrecognized language strings as "none".
+            return StatusWithFTSLanguage(&languageNoneV1);
         }
+        return StatusWithFTSLanguage(it->second);
     }
-
-    verify(false);
-    return StatusWithFTSLanguage(Status::OK());
 }
 }
 }
