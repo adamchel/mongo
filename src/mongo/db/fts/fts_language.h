@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "mongo/db/fts/fts_phrase_matcher.h"
 #include "mongo/db/fts/fts_util.h"
 #include "mongo/base/status_with.h"
 
@@ -42,7 +43,7 @@ namespace fts {
 class FTSTokenizer;
 
 #define MONGO_FTS_LANGUAGE_DECLARE(language, name, minversion)                                 \
-    BasicFTSLanguage language;                                                     \
+    BasicFTSLanguage language;                                                                 \
     MONGO_INITIALIZER_GENERAL(language, MONGO_NO_PREREQUISITES, ("FTSAllLanguagesRegistered")) \
     (::mongo::InitializerContext * context) {                                                  \
         FTSLanguage::registerLanguage(name, minversion, &language);                            \
@@ -82,9 +83,17 @@ public:
 
     /**
      * Returns a new FTSTokenizer instance for this language.
-     * Lifetime is scoped to FTSLanguage (which are currently all process lifetime)
+     * Lifetime is scoped to FTSLanguage. (which are currently all process lifetime, unless using a
+     * text index version other than the minimum)
      */
     virtual std::unique_ptr<FTSTokenizer> createTokenizer() const = 0;
+
+    /**
+     * Returns a new FTSPhraseMatcher instance for this language.
+     * Lifetime is scoped to FTSLanguage. (which are currently all process lifetime, unless using a
+     * text index version other than the minimum)
+     */
+    virtual std::unique_ptr<FTSPhraseMatcher> createPhraseMatcher() const = 0;
 
     /**
      * Register std::string 'languageName' as a new language with the minimum text index version
@@ -105,10 +114,11 @@ public:
                                       TextIndexVersion textIndexVersion);
 
     /**
-     * Return the FTSLanguage associated with the given language string.  Returns an error
-     * Status if an invalid language std::string is passed.
+     * Return the FTSLanguage associated with the given language string and the given text index
+     *version.  Returns an error Status if an invalid language std::string is passed, or if the text
+     *index version passed is less than the minimum text index version for the given language.
      *
-     * For textIndexVersion=TEXT_INDEX_VERSION_2, language strings are
+     * For textIndexVersion>=TEXT_INDEX_VERSION_2, language strings are
      * case-insensitive, and need to be in one of the two following forms:
      * - English name, like "spanish".
      * - Two-letter code, like "es".
@@ -128,7 +138,8 @@ protected:
      * version. It is an error to call cloneWithIndexVersion() on an unitialized language. It is
      * also an error to call this with a textIndexVersion less than _minTextIndexVersion.
      */
-    virtual std::unique_ptr<FTSLanguage> cloneWithIndexVersion(TextIndexVersion textIndexVersion) const = 0;
+    virtual std::unique_ptr<FTSLanguage> cloneWithIndexVersion(
+        TextIndexVersion textIndexVersion) const = 0;
 
 
     TextIndexVersion _minTextIndexVersion;
@@ -136,9 +147,6 @@ protected:
 
     // std::string representation of language in canonical form.
     std::string _canonicalName;
-
-private:
-
 };
 
 typedef StatusWith<const FTSLanguage*> StatusWithFTSLanguage;
@@ -147,9 +155,11 @@ typedef StatusWith<const FTSLanguage*> StatusWithFTSLanguage;
 class BasicFTSLanguage : public FTSLanguage {
 public:
     std::unique_ptr<FTSTokenizer> createTokenizer() const override;
+    std::unique_ptr<FTSPhraseMatcher> createPhraseMatcher() const override;
 
-private:
-    std::unique_ptr<FTSLanguage> cloneWithIndexVersion(TextIndexVersion textIndexVersion) const override;
+protected:
+    std::unique_ptr<FTSLanguage> cloneWithIndexVersion(
+        TextIndexVersion textIndexVersion) const override;
 };
 
 extern BasicFTSLanguage languagePorterV1;

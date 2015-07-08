@@ -34,6 +34,7 @@
 
 #include "mongo/base/init.h"
 #include "mongo/db/fts/fts_basic_tokenizer.h"
+#include "mongo/db/fts/fts_basic_phrase_matcher.h"
 #include "mongo/stdx/memory.h"
 #include "mongo/util/assert_util.h"
 #include "mongo/util/mongoutils/str.h"
@@ -85,10 +86,27 @@ std::unique_ptr<FTSTokenizer> BasicFTSLanguage::createTokenizer() const {
     return stdx::make_unique<BasicFTSTokenizer>(this);
 }
 
+std::unique_ptr<FTSPhraseMatcher> BasicFTSLanguage::createPhraseMatcher() const {
+    return stdx::make_unique<BasicFTSPhraseMatcher>();
+}
+
+std::unique_ptr<FTSLanguage> BasicFTSLanguage::cloneWithIndexVersion(TextIndexVersion textIndexVersion) const {
+    invariant(textIndexVersion >= _minTextIndexVersion);
+
+    auto clone = stdx::make_unique<BasicFTSLanguage>();
+    clone->_canonicalName = str();
+    clone->_minTextIndexVersion = _minTextIndexVersion;
+    clone->_textIndexVersion = textIndexVersion;
+    
+    std::unique_ptr<FTSLanguage> ftsLanguageClone = std::move(clone);
+
+    return ftsLanguageClone;
+}
+
 MONGO_INITIALIZER_GROUP(FTSAllLanguagesRegistered, MONGO_NO_PREREQUISITES, MONGO_NO_DEPENDENTS);
 
 //
-// Register supported languages' canonical names for TEXT_INDEX_VERSION_2.
+// Register supported languages' canonical names for TEXT_INDEX_VERSION_2 and above.
 //
 
 MONGO_FTS_LANGUAGE_DECLARE(languageNoneV2, "none", TEXT_INDEX_VERSION_2);
@@ -169,7 +187,7 @@ MONGO_FTS_LANGUAGE_DECLARE(languageTurkishV1, "turkish", TEXT_INDEX_VERSION_1);
 
 MONGO_INITIALIZER_WITH_PREREQUISITES(FTSRegisterLanguageAliases, ("FTSAllLanguagesRegistered"))
 (InitializerContext* context) {
-    // Register language aliases for TEXT_INDEX_VERSION_2.
+    // Register language aliases for TEXT_INDEX_VERSION_2 and above.
     FTSLanguage::registerLanguageAlias(&languageDanishV2, "da", TEXT_INDEX_VERSION_2);
     FTSLanguage::registerLanguageAlias(&languageDutchV2, "nl", TEXT_INDEX_VERSION_2);
     FTSLanguage::registerLanguageAlias(&languageEnglishV2, "en", TEXT_INDEX_VERSION_2);
@@ -226,25 +244,12 @@ const std::string& FTSLanguage::str() const {
     return _canonicalName;
 }
 
-std::unique_ptr<FTSLanguage> BasicFTSLanguage::cloneWithIndexVersion(TextIndexVersion textIndexVersion) const {
-    invariant(textIndexVersion >= _minTextIndexVersion);
-
-    auto clone = stdx::make_unique<BasicFTSLanguage>();
-    clone->_canonicalName = str();
-    clone->_minTextIndexVersion = _minTextIndexVersion;
-    clone->_textIndexVersion = textIndexVersion;
-    
-    std::unique_ptr<FTSLanguage> ftsLanguageClone = std::move(clone);
-
-    return ftsLanguageClone;
-}
-
 // static
 StatusWithFTSLanguage FTSLanguage::make(StringData langName, TextIndexVersion textIndexVersion) {
     if (textIndexVersion >= TEXT_INDEX_VERSION_2) {
         LanguageMapV2::const_iterator it = languageMapV2.find(langName.toString());
         if (it == languageMapV2.end()) {
-            // TEXT_INDEX_VERSION_2 rejects unrecognized language strings.
+            // TEXT_INDEX_VERSION_2 and above reject unrecognized language strings.
             Status status = Status(ErrorCodes::BadValue,
                                    mongoutils::str::stream() << "unsupported language: \""
                                                              << langName << "\"");

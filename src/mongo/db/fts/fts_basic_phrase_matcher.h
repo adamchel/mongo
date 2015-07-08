@@ -28,29 +28,26 @@
 
 #pragma once
 
-#include <string>
+#include "fts_phrase_matcher.h"
 
 namespace mongo {
 namespace fts {
 
-using std::string;
-
 /**
- * FTSPhraseMatcher
- * An interface for substring matching routines. Currently used by the FTSMatcher for finding
- * phrases within text documents.
+ * BasicFTSPhraseMatcher
+ *
+ * A phrase matcher that looks for exact substring matches with basic ASCII-aware case
+ * insensitivity if caseSensitive is set to false .
  */
-class FTSPhraseMatcher {
-public:
-    virtual ~FTSPhraseMatcher() = default;
+class BasicFTSPhraseMatcher : public FTSPhraseMatcher {
+    MONGO_DISALLOW_COPYING(BasicFTSPhraseMatcher);
 
-    /**
-    * Does the string 'phrase' occur in the string 'haystack'?  Match is case-insensitive if
-    * 'caseSensitive' is false.
-    */
-    virtual bool phraseMatches(const string& phrase,
-                               const string& haystack,
-                               bool caseSensitive) = 0;
+public:
+    BasicFTSPhraseMatcher() {}
+
+    bool phraseMatches(const string& phrase,
+                              const string& haystack,
+                              bool caseSensitive) final;
 };
 
 }  // namespace fts
