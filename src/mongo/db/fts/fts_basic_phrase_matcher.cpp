@@ -26,17 +26,15 @@
  *    it in the license file.
  */
 
-#pragma once
-
-#include "fts_basic_phrase_matcher.h"
+#include "mongo/db/fts/fts_basic_phrase_matcher.h"
 #include "mongo/platform/strcasestr.h"
 
 namespace mongo {
 namespace fts {
 
-BasicFTSPhraseMatcher::phraseMatches(const string& phrase,
+bool BasicFTSPhraseMatcher::phraseMatches(const string& phrase,
                                      const string& haystack,
-                                     bool caseSensitivee) {
+                                     bool caseSensitive) {
     if (caseSensitive) {
         return haystack.find(phrase) != string::npos;
     }

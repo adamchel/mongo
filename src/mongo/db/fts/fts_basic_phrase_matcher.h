@@ -28,7 +28,8 @@
 
 #pragma once
 
-#include "fts_phrase_matcher.h"
+#include "mongo/base/disallow_copying.h"
+#include "mongo/db/fts/fts_phrase_matcher.h"
 
 namespace mongo {
 namespace fts {
@@ -45,9 +46,7 @@ class BasicFTSPhraseMatcher : public FTSPhraseMatcher {
 public:
     BasicFTSPhraseMatcher() {}
 
-    bool phraseMatches(const string& phrase,
-                              const string& haystack,
-                              bool caseSensitive) final;
+    bool phraseMatches(const string& phrase, const string& haystack, bool caseSensitive) final;
 };
 
 }  // namespace fts
