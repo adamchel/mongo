@@ -26,21 +26,30 @@
  *    it in the license file.
  */
 
-#include "mongo/db/fts/fts_basic_phrase_matcher.h"
+#pragma once
 
-#include "mongo/platform/strcasestr.h"
+#include <string>
+
+#include "mongo/util/mongoutils/str.h"
 
 namespace mongo {
 namespace fts {
 
-bool BasicFTSPhraseMatcher::phraseMatches(const string& phrase,
-                                     const string& haystack,
-                                     bool caseSensitive) {
-    if (caseSensitive) {
-        return haystack.find(phrase) != string::npos;
-    }
-    return strcasestr(haystack.c_str(), phrase.c_str()) != NULL;
-}
+using std::string;
+
+/**
+ * FTSStringNormalizer
+ * An interface for string normalization routines. Currently used by FTSQuery to normalize query
+ * parameters. Normalization typically means things like case folding, removing diacritics, and
+ * performing Unicode normalization. The implementation of this interface defines how the
+ * normalization is performed.
+ */
+class FTSStringNormalizer {
+public:
+    virtual ~FTSStringNormalizer() = default;
+
+    virtual string normalizeString(StringData str) const = 0;
+};
 
 }  // namespace fts
 }  // namespace mongo

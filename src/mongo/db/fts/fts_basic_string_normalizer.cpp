@@ -26,20 +26,21 @@
  *    it in the license file.
  */
 
-#include "mongo/db/fts/fts_basic_phrase_matcher.h"
+#include "mongo/db/fts/fts_basic_string_normalizer.h"
 
-#include "mongo/platform/strcasestr.h"
+#include "mongo/util/stringutils.h"
 
 namespace mongo {
 namespace fts {
 
-bool BasicFTSPhraseMatcher::phraseMatches(const string& phrase,
-                                     const string& haystack,
-                                     bool caseSensitive) {
-    if (caseSensitive) {
-        return haystack.find(phrase) != string::npos;
+BasicFTSStringNormalizer::BasicFTSStringNormalizer(bool caseSensitive)
+    : _caseSensitive(caseSensitive) {}
+
+string BasicFTSStringNormalizer::normalizeString(StringData str) const {
+    if (_caseSensitive) {
+        return str.toString();
     }
-    return strcasestr(haystack.c_str(), phrase.c_str()) != NULL;
+    return tolowerString(str);
 }
 
 }  // namespace fts

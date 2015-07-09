@@ -35,6 +35,7 @@
 #include "mongo/base/init.h"
 #include "mongo/db/fts/fts_basic_tokenizer.h"
 #include "mongo/db/fts/fts_basic_phrase_matcher.h"
+#include "mongo/db/fts/fts_basic_string_normalizer.h"
 #include "mongo/stdx/memory.h"
 #include "mongo/util/assert_util.h"
 #include "mongo/util/mongoutils/str.h"
@@ -90,14 +91,20 @@ std::unique_ptr<FTSPhraseMatcher> BasicFTSLanguage::createPhraseMatcher() const 
     return stdx::make_unique<BasicFTSPhraseMatcher>();
 }
 
-std::unique_ptr<FTSLanguage> BasicFTSLanguage::cloneWithIndexVersion(TextIndexVersion textIndexVersion) const {
+std::unique_ptr<FTSStringNormalizer> BasicFTSLanguage::createStringNormalizer(
+    bool caseSensitive) const {
+    return stdx::make_unique<BasicFTSStringNormalizer>(caseSensitive);
+}
+
+std::unique_ptr<FTSLanguage> BasicFTSLanguage::cloneWithIndexVersion(
+    TextIndexVersion textIndexVersion) const {
     invariant(textIndexVersion >= _minTextIndexVersion);
 
     auto clone = stdx::make_unique<BasicFTSLanguage>();
     clone->_canonicalName = str();
     clone->_minTextIndexVersion = _minTextIndexVersion;
     clone->_textIndexVersion = textIndexVersion;
-    
+
     std::unique_ptr<FTSLanguage> ftsLanguageClone = std::move(clone);
 
     return ftsLanguageClone;
@@ -213,11 +220,11 @@ void FTSLanguage::registerLanguage(StringData languageName,
     verify(!languageName.empty());
     language->_canonicalName = languageName.toString();
     language->_minTextIndexVersion = minTextIndexVersion;
-    language->_textIndexVersion    = minTextIndexVersion;
+    language->_textIndexVersion = minTextIndexVersion;
 
-    if(minTextIndexVersion >= TEXT_INDEX_VERSION_2) {
+    if (minTextIndexVersion >= TEXT_INDEX_VERSION_2) {
         languageMapV2[languageName.toString()] = language;
-    } else { // legacy text index
+    } else {  // legacy text index
         invariant(minTextIndexVersion == TEXT_INDEX_VERSION_1);
         verify(languageMapV1.find(languageName) == languageMapV1.end());
         languageMapV1[languageName] = language;
@@ -230,7 +237,7 @@ void FTSLanguage::registerLanguageAlias(const FTSLanguage* language,
                                         TextIndexVersion minTextIndexVersion) {
     if (minTextIndexVersion >= TEXT_INDEX_VERSION_2) {
         languageMapV2[alias.toString()] = language;
-    } else { // legacy text index
+    } else {  // legacy text index
         invariant(minTextIndexVersion == TEXT_INDEX_VERSION_1);
         verify(languageMapV1.find(alias) == languageMapV1.end());
         languageMapV1[alias] = language;
@@ -250,25 +257,25 @@ StatusWithFTSLanguage FTSLanguage::make(StringData langName, TextIndexVersion te
         LanguageMapV2::const_iterator it = languageMapV2.find(langName.toString());
         if (it == languageMapV2.end()) {
             // TEXT_INDEX_VERSION_2 and above reject unrecognized language strings.
-            Status status = Status(ErrorCodes::BadValue,
-                                   mongoutils::str::stream() << "unsupported language: \""
-                                                             << langName << "\"");
+            Status status =
+                Status(ErrorCodes::BadValue,
+                       mongoutils::str::stream() << "unsupported language: \"" << langName << "\"");
             return StatusWithFTSLanguage(status);
         }
 
         const FTSLanguage* foundLangauge = it->second;
-        if(textIndexVersion > foundLangauge->_minTextIndexVersion) {
-            return StatusWithFTSLanguage(foundLangauge->cloneWithIndexVersion(textIndexVersion).get());
+        if (textIndexVersion > foundLangauge->_minTextIndexVersion) {
+            return StatusWithFTSLanguage(
+                foundLangauge->cloneWithIndexVersion(textIndexVersion).get());
         } else if (textIndexVersion < foundLangauge->_minTextIndexVersion) {
             Status status = Status(ErrorCodes::BadValue,
-                                   mongoutils::str::stream() << "text index version "
-                                                             << textIndexVersion 
-                                                             << " too low for language: \""
-                                                             << langName << "\"");
+                                   mongoutils::str::stream()
+                                       << "text index version " << textIndexVersion
+                                       << " too low for language: \"" << langName << "\"");
             return StatusWithFTSLanguage(status);
         }
         return StatusWithFTSLanguage(it->second);
-    } else { // legacy text index
+    } else {  // legacy text index
         invariant(textIndexVersion == TEXT_INDEX_VERSION_1);
         LanguageMapV1::const_iterator it = languageMapV1.find(langName);
         if (it == languageMapV1.end()) {

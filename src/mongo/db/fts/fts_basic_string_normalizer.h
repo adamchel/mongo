@@ -26,21 +26,36 @@
  *    it in the license file.
  */
 
-#include "mongo/db/fts/fts_basic_phrase_matcher.h"
+#pragma once
 
-#include "mongo/platform/strcasestr.h"
+#include "mongo/db/fts/fts_string_normalizer.h"
+
+#include "mongo/base/disallow_copying.h"
 
 namespace mongo {
 namespace fts {
 
-bool BasicFTSPhraseMatcher::phraseMatches(const string& phrase,
-                                     const string& haystack,
-                                     bool caseSensitive) {
-    if (caseSensitive) {
-        return haystack.find(phrase) != string::npos;
-    }
-    return strcasestr(haystack.c_str(), phrase.c_str()) != NULL;
-}
+/**
+ * BasicFTSStringNormalizer
+ * A basic string normalizer that simply performs ASCII-aware case folding if _caseSensitive is set
+ * to true.
+ */
+class BasicFTSStringNormalizer : public FTSStringNormalizer {
+    MONGO_DISALLOW_COPYING(BasicFTSStringNormalizer);
+
+public:
+	
+	BasicFTSStringNormalizer(bool caseSensitive);
+
+	/**
+     * Lowercases "str" if _caseSensitive is set, else returns a copy of "str" unchanged.
+     */
+    string normalizeString(StringData str) const final;
+
+private:
+
+	bool _caseSensitive;
+};
 
 }  // namespace fts
 }  // namespace mongo

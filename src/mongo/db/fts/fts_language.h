@@ -31,6 +31,7 @@
 #pragma once
 
 #include "mongo/db/fts/fts_phrase_matcher.h"
+#include "mongo/db/fts/fts_string_normalizer.h"
 #include "mongo/db/fts/fts_util.h"
 #include "mongo/base/status_with.h"
 
@@ -82,18 +83,22 @@ public:
     const std::string& str() const;
 
     /**
-     * Returns a new FTSTokenizer instance for this language.
+     * Returns a new FTSTokenizer instance for this language and its text index version.
      * Lifetime is scoped to FTSLanguage. (which are currently all process lifetime, unless using a
      * text index version other than the minimum)
      */
     virtual std::unique_ptr<FTSTokenizer> createTokenizer() const = 0;
 
     /**
-     * Returns a new FTSPhraseMatcher instance for this language.
-     * Lifetime is scoped to FTSLanguage. (which are currently all process lifetime, unless using a
-     * text index version other than the minimum)
+     * Returns a new FTSPhraseMatcher instance for this language and its text index version.
      */
     virtual std::unique_ptr<FTSPhraseMatcher> createPhraseMatcher() const = 0;
+
+    /**
+     * Returns a new FTSStringNormalizer instance for this language and its text index version.
+     */
+    virtual std::unique_ptr<FTSStringNormalizer> createStringNormalizer(
+        bool caseSensitive) const = 0;
 
     /**
      * Register std::string 'languageName' as a new language with the minimum text index version
@@ -156,6 +161,7 @@ class BasicFTSLanguage : public FTSLanguage {
 public:
     std::unique_ptr<FTSTokenizer> createTokenizer() const override;
     std::unique_ptr<FTSPhraseMatcher> createPhraseMatcher() const override;
+    std::unique_ptr<FTSStringNormalizer> createStringNormalizer(bool caseSensitive) const override;
 
 protected:
     std::unique_ptr<FTSLanguage> cloneWithIndexVersion(
