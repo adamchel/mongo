@@ -12,7 +12,6 @@ env.Library(target='unicode_utils',
 env.CppUnitTest(target='u_string_test',
                 source=[
                 	'u_string_test.cpp'
-
                 ],
                 LIBDEPS=[
                 	'unicode_utils', 
