@@ -62,7 +62,7 @@ public:
         FoldCase = 1 << 0,
     };
 
-    virtual void reset(const FTSLanguage* language, Options options) = 0;
+    virtual void reset(Options options) = 0;
 
     virtual string normalizeString(StringData str) const = 0;
 

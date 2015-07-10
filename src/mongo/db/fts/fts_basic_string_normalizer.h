@@ -47,7 +47,7 @@ public:
 	
 	BasicFTSStringNormalizer();
 
-	void reset(const FTSLanguage* language, Options options) final;
+	void reset(Options options) final;
 
 	/**
      * Lowercases "str" if _caseSensitive is set, else returns a copy of "str" unchanged.

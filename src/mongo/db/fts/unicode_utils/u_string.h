@@ -56,7 +56,7 @@ public:
     friend ostream& operator<<(ostream& os, const UString& str);
 
     static bool needleInHaystack(const UString& haystack,
-                                 UString& needle,
+                                 const UString& needle,
                                  bool caseSensitive = false,
                                  bool ignoreDiacritics = true,
                                  bool turkish = false);

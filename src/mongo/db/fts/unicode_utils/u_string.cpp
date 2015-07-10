@@ -136,7 +136,7 @@ ostream& operator<<(ostream& os, const UString& str) {
 }
 
 bool UString::needleInHaystack(const UString& haystack,
-                               UString& needle,
+                               const UString& needle,
                                bool caseSensitive,
                                bool ignoreDiacritics,
                                bool turkish) {

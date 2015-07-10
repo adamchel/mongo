@@ -35,7 +35,7 @@ namespace fts {
 
 BasicFTSStringNormalizer::BasicFTSStringNormalizer() {}
 
-void BasicFTSStringNormalizer::reset(const FTSLanguage* language, Options options) {
+void BasicFTSStringNormalizer::reset(Options options) {
     _options = options;
 }
 
