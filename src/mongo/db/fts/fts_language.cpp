@@ -265,7 +265,7 @@ StatusWithFTSLanguage FTSLanguage::make(StringData langName, TextIndexVersion te
         const FTSLanguage* foundLangauge = it->second;
         if (textIndexVersion > foundLangauge->_minTextIndexVersion) {
             return StatusWithFTSLanguage(
-                foundLangauge->cloneWithIndexVersion(textIndexVersion).get());
+                foundLangauge->cloneWithIndexVersion(textIndexVersion).release());
         } else if (textIndexVersion < foundLangauge->_minTextIndexVersion) {
             Status status = Status(ErrorCodes::BadValue,
                                    mongoutils::str::stream()
