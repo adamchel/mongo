@@ -43,6 +43,9 @@ baseEnv.Library('base', [
         'fts_basic_tokenizer.cpp',
         'fts_basic_phrase_matcher.cpp',
         'fts_basic_string_normalizer.cpp',
+        'fts_unicode_tokenizer.cpp',
+        'fts_unicode_phrase_matcher.cpp',
+        'fts_unicode_string_normalizer.cpp',
         'fts_util.cpp',
         'fts_element_iterator.cpp',
         'stemmer.cpp',
@@ -78,6 +81,9 @@ env.CppUnitTest( "fts_stemmer_test", "stemmer_test.cpp",
                  LIBDEPS=["base"] )
 
 env.CppUnitTest( "fts_basic_tokenizer_test", "fts_basic_tokenizer_test.cpp",
+                 LIBDEPS=["base"] )
+
+env.CppUnitTest( "fts_unicode_tokenizer_test", "fts_unicode_tokenizer_test.cpp",
                  LIBDEPS=["base"] )
 
 env.CppUnitTest( "fts_tokenizer_test", "tokenizer_test.cpp",

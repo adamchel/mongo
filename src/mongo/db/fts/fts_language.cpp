@@ -36,6 +36,9 @@
 #include "mongo/db/fts/fts_basic_tokenizer.h"
 #include "mongo/db/fts/fts_basic_phrase_matcher.h"
 #include "mongo/db/fts/fts_basic_string_normalizer.h"
+#include "mongo/db/fts/fts_unicode_tokenizer.h"
+#include "mongo/db/fts/fts_unicode_phrase_matcher.h"
+#include "mongo/db/fts/fts_unicode_string_normalizer.h"
 #include "mongo/stdx/memory.h"
 #include "mongo/util/assert_util.h"
 #include "mongo/util/mongoutils/str.h"
@@ -84,15 +87,30 @@ LanguageMapV1 languageMapV1;
 }
 
 std::unique_ptr<FTSTokenizer> BasicFTSLanguage::createTokenizer() const {
-    return stdx::make_unique<BasicFTSTokenizer>(this);
+    if(_textIndexVersion == TEXT_INDEX_VERSION_3) {
+        return stdx::make_unique<UnicodeFTSTokenizer>(this);
+    } else if(_textIndexVersion <= TEXT_INDEX_VERSION_2) {
+        return stdx::make_unique<BasicFTSTokenizer>(this);
+    }
+    invariant(false);
 }
 
 std::unique_ptr<FTSPhraseMatcher> BasicFTSLanguage::createPhraseMatcher() const {
-    return stdx::make_unique<BasicFTSPhraseMatcher>();
+    if(_textIndexVersion >= TEXT_INDEX_VERSION_3) {
+        return stdx::make_unique<UnicodeFTSPhraseMatcher>(this);
+    } else if (_textIndexVersion <= TEXT_INDEX_VERSION_2) {
+        return stdx::make_unique<BasicFTSPhraseMatcher>();
+    }
+    invariant(false);
 }
 
 std::unique_ptr<FTSStringNormalizer> BasicFTSLanguage::createStringNormalizer() const {
-    return stdx::make_unique<BasicFTSStringNormalizer>();
+    if(_textIndexVersion >= TEXT_INDEX_VERSION_3) {
+        return stdx::make_unique<UnicodeFTSStringNormalizer>(this);
+    } else if (_textIndexVersion <= TEXT_INDEX_VERSION_2) {
+        return stdx::make_unique<BasicFTSStringNormalizer>();    
+    }
+    invariant(false);
 }
 
 std::unique_ptr<FTSLanguage> BasicFTSLanguage::cloneWithIndexVersion(

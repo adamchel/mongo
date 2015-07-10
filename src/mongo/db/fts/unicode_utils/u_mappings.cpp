@@ -31,6 +31,75 @@
 namespace mongo {
 namespace unicode {
 
+char32_t isDelimiter(char32_t c, bool english) {
+    // TODO: This is horribly inefficient, we need a better data structure here.
+
+    // Whitespace
+    if (c >= 0x0009 && c <= 0x000d) return true;
+    if (c == 0x0020) return true;
+    if (c == 0x0085) return true;
+    if (c == 0x00A0) return true;
+    if (c == 0x1680) return true;
+    if (c >= 0x2000 && c <= 0x200A) return true;
+    if (c == 0x2028) return true;
+    if (c == 0x2029) return true;
+    if (c == 0x202F) return true;
+    if (c == 0x205F) return true;
+    if (c == 0x3000) return true;
+
+    // Quotation marks
+    if (c == 0x0022) return true;
+    if (!english && c == 0x0027) return true; // apostrophe
+    if (c == 0x00AB) return true;
+    if (c == 0x00BB) return true;
+    if (c == 0x2018) return true;
+    if (c == 0x2019) return true;
+    if (c == 0x201A) return true;
+    if (c >= 0x201B && c <= 0x201C) return true;
+    if (c == 0x201D) return true;
+    if (c == 0x201E) return true;
+    if (c == 0x201F) return true;
+    if (c == 0x2039) return true;
+    if (c == 0x203A) return true;
+    if (c == 0x2E42) return true;
+    if (c == 0x300C) return true;
+    if (c == 0x300D) return true;
+    if (c == 0x300E) return true;
+    if (c == 0x300F) return true;
+    if (c == 0x301D) return true;
+    if (c >= 0x301E && c <= 0x301F) return true;
+    if (c == 0xFE41) return true;
+    if (c == 0xFE42) return true;
+    if (c == 0xFE43) return true;
+    if (c == 0xFE44) return true;
+    if (c == 0xFF02) return true;
+    if (c == 0xFF07) return true;
+    if (c == 0xFF62) return true;
+    if (c == 0xFF63) return true;
+
+    // Terminal punctutation
+    if (c == 0x0021) return true;
+    if (c == 0x002C) return true;
+    if (c == 0x002E) return true;
+    if (c == 0x003F) return true;
+    if (c == 0x037E) return true;
+    if (c == 0x0387) return true;
+    if (c == 0x0589) return true;
+    if (c >= 0x003A && c <= 0x003B) return true;
+    if (c == 0x05C3) return true;
+    if (c == 0x060C) return true;
+    if (c == 0x061B) return true;
+    if (c == 0x061F) return true;
+    if (c == 0x06D4) return true;
+    if (c == 0x070C) return true;
+
+    // TODO: more...
+
+    return false;
+
+
+}
+
 char32_t codepointToLower(char32_t codepoint, bool turkish) {
     if (codepoint >= 0x10000) {
         return codepoint;
