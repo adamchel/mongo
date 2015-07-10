@@ -42,6 +42,8 @@ using std::use_facet;
 
 using std::locale;
 
+UString::UString() : UString(std::vector<char32_t>()) {}
+
 UString::UString(const char utf8_src[]) {
     auto& f = use_facet<codecvt<char32_t, char, mbstate_t>>(locale());
 
@@ -114,6 +116,16 @@ std::string UString::toString() const {
     return output;
 }
 
+UString UString::substr(size_t begin, size_t end) const {
+    if (begin >= _data.size()) {
+        return UString("");
+    } else if (end >= _data.size()) {
+        return UString(std::vector<char32_t>(_data.begin() + begin, _data.end()));
+    } else {
+        return UString(std::vector<char32_t>(_data.begin() + begin, _data.begin() + end));
+    }
+}
+
 UString UString::toLower(bool turkish) const {
     std::vector<char32_t> newdata;
     for (auto codepoint : _data) {
@@ -177,5 +189,5 @@ bool UString::needleInHaystack(const UString& haystack,
     }
 }
 
-} // namespace unicode
-} // namespace mongo
+}  // namespace unicode
+}  // namespace mongo

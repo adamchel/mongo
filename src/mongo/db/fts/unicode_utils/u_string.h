@@ -45,13 +45,25 @@ using std::string;
 
 class UString {
 public:
+    UString();
     UString(const char utf_src[]);
     UString(const std::vector<char32_t> udata_src);
 
     UString toLower(bool turkish = false) const;
     UString toNoDiacritics() const;
 
+    UString substr(size_t begin, size_t end) const;
+
     string toString() const;
+
+    size_t size() const {
+        return _data.size();
+    }
+
+    const char32_t& operator[](int i) const {
+        return _data[i];
+    }
+
 
     friend ostream& operator<<(ostream& os, const UString& str);
 
@@ -66,5 +78,5 @@ private:
     std::vector<char32_t> _data;
 };
 
-} // namespace unicode
-} // namespace mongo
+}  // namespace unicode
+}  // namespace mongo
