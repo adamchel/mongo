@@ -33,14 +33,18 @@
 namespace mongo {
 namespace fts {
 
-BasicFTSStringNormalizer::BasicFTSStringNormalizer(bool caseSensitive)
-    : _caseSensitive(caseSensitive) {}
+BasicFTSStringNormalizer::BasicFTSStringNormalizer() {}
+
+void BasicFTSStringNormalizer::reset(const FTSLanguage* language, Options options) {
+    _options = options;
+}
 
 string BasicFTSStringNormalizer::normalizeString(StringData str) const {
-    if (_caseSensitive) {
-        return str.toString();
+    if (_options & Options::FoldCase) {
+        return tolowerString(str);
     }
-    return tolowerString(str);
+
+    return str.toString();
 }
 
 }  // namespace fts

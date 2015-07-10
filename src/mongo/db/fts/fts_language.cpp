@@ -91,9 +91,8 @@ std::unique_ptr<FTSPhraseMatcher> BasicFTSLanguage::createPhraseMatcher() const 
     return stdx::make_unique<BasicFTSPhraseMatcher>();
 }
 
-std::unique_ptr<FTSStringNormalizer> BasicFTSLanguage::createStringNormalizer(
-    bool caseSensitive) const {
-    return stdx::make_unique<BasicFTSStringNormalizer>(caseSensitive);
+std::unique_ptr<FTSStringNormalizer> BasicFTSLanguage::createStringNormalizer() const {
+    return stdx::make_unique<BasicFTSStringNormalizer>();
 }
 
 std::unique_ptr<FTSLanguage> BasicFTSLanguage::cloneWithIndexVersion(

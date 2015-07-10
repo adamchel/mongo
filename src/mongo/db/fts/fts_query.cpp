@@ -61,7 +61,12 @@ Status FTSQuery::parse(const string& query,
     }
     _language = swl.getValue();
     _caseSensitive = caseSensitive;
-    auto normalizer = _language->createStringNormalizer(caseSensitive);
+    auto normalizer = _language->createStringNormalizer();
+
+    normalizer->reset(
+        _language,
+        static_cast<FTSStringNormalizer::Options>(_caseSensitive ? FTSStringNormalizer::None
+                                                                 : FTSStringNormalizer::FoldCase));
 
     // Build a space delimited list of words to have the FtsTokenizer tokenize
     string positiveTermSentence;

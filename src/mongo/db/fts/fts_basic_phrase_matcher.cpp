@@ -34,8 +34,8 @@ namespace mongo {
 namespace fts {
 
 bool BasicFTSPhraseMatcher::phraseMatches(const string& phrase,
-                                     const string& haystack,
-                                     bool caseSensitive) {
+                                          const string& haystack,
+                                          bool caseSensitive) {
     if (caseSensitive) {
         return haystack.find(phrase) != string::npos;
     }

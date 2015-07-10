@@ -37,18 +37,35 @@ namespace fts {
 
 using std::string;
 
+class FTSLanguage;
+
 /**
  * FTSStringNormalizer
  * An interface for string normalization routines. Currently used by FTSQuery to normalize query
  * parameters. Normalization typically means things like case folding, removing diacritics, and
- * performing Unicode normalization. The implementation of this interface defines how the
- * normalization is performed.
+ * performing Unicode normalization. Implementations do not need to support all options, but the
+ * options that are and aren't supported should be clearly documented.
  */
 class FTSStringNormalizer {
 public:
     virtual ~FTSStringNormalizer() = default;
 
+    enum Options {
+        /**
+         * None.
+         */
+        None = 0,
+
+        /**
+         * Lowercase strings as part of normalization.
+         */
+        FoldCase = 1 << 0,
+    };
+
+    virtual void reset(const FTSLanguage* language, Options options) = 0;
+
     virtual string normalizeString(StringData str) const = 0;
+
 };
 
 }  // namespace fts

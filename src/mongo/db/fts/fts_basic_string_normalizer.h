@@ -45,7 +45,9 @@ class BasicFTSStringNormalizer : public FTSStringNormalizer {
 
 public:
 	
-	BasicFTSStringNormalizer(bool caseSensitive);
+	BasicFTSStringNormalizer();
+
+	void reset(const FTSLanguage* language, Options options) final;
 
 	/**
      * Lowercases "str" if _caseSensitive is set, else returns a copy of "str" unchanged.
@@ -53,8 +55,8 @@ public:
     string normalizeString(StringData str) const final;
 
 private:
+	Options _options;
 
-	bool _caseSensitive;
 };
 
 }  // namespace fts
