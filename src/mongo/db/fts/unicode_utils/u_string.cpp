@@ -159,7 +159,7 @@ bool UString::needleInHaystack(const UString& haystack,
                            needle._data.cend(),
                            [&](char32_t c1, char32_t c2) {
                                return (codepointToLower(codepointRemoveDiacritics(c1), turkish) ==
-                                       codepointToLower(codepointRemoveDiacritics(c1), turkish));
+                                       codepointToLower(codepointRemoveDiacritics(c2), turkish));
                            }) != haystack._data.cend();
     } else if (caseSensitive == true && ignoreDiacritics == true) {
         return std::search(haystack._data.cbegin(),

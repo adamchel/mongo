@@ -73,18 +73,30 @@ FTSSpec::FTSSpec(const BSONObj& indexInfo) {
             "found invalid spec for text index, expected number for textIndexVersion",
             textIndexVersionElt.isNumber());
 
-    // We currently support TEXT_INDEX_VERSION_1 (deprecated) and TEXT_INDEX_VERSION_2.
+    // We currently support TEXT_INDEX_VERSION_1 (deprecated), TEXT_INDEX_VERSION_2, and
+    // TEXT_INDEX_VERSION_3.
     // Reject all other values.
     massert(17364,
             str::stream() << "attempt to use unsupported textIndexVersion "
                           << textIndexVersionElt.numberInt() << "; versions supported: "
                           << TEXT_INDEX_VERSION_2 << ", " << TEXT_INDEX_VERSION_1,
             textIndexVersionElt.numberInt() == TEXT_INDEX_VERSION_2 ||
-                textIndexVersionElt.numberInt() == TEXT_INDEX_VERSION_1);
+                textIndexVersionElt.numberInt() == TEXT_INDEX_VERSION_1 ||
+                textIndexVersionElt.numberInt() == TEXT_INDEX_VERSION_3);
 
-    _textIndexVersion = (textIndexVersionElt.numberInt() == TEXT_INDEX_VERSION_2)
-        ? TEXT_INDEX_VERSION_2
-        : TEXT_INDEX_VERSION_1;
+    switch (textIndexVersionElt.numberInt()) {
+    case TEXT_INDEX_VERSION_3:
+        _textIndexVersion = TEXT_INDEX_VERSION_3;
+        break;
+    case TEXT_INDEX_VERSION_2:
+        _textIndexVersion = TEXT_INDEX_VERSION_2;
+        break;
+    case TEXT_INDEX_VERSION_1:
+        _textIndexVersion = TEXT_INDEX_VERSION_1;
+        break;
+    default:
+        invariant(false);
+    }
 
     // Initialize _defaultLanguage.  Note that the FTSLanguage constructor requires
     // textIndexVersion, since language parsing is version-specific.
@@ -397,7 +409,7 @@ BSONObj FTSSpec::fixSpec(const BSONObj& spec) {
     }
 
     int version = -1;
-    int textIndexVersion = TEXT_INDEX_VERSION_2;
+    int textIndexVersion = TEXT_INDEX_VERSION_3; // TEXT_INDEX_VERSION_2; // default text index version
 
     BSONObjBuilder b;
     BSONObjIterator i(spec);
@@ -421,7 +433,7 @@ BSONObj FTSSpec::fixSpec(const BSONObj& spec) {
             textIndexVersion = e.numberInt();
             uassert(16730,
                     str::stream() << "bad textIndexVersion: " << textIndexVersion,
-                    textIndexVersion == TEXT_INDEX_VERSION_2);
+                    textIndexVersion == TEXT_INDEX_VERSION_2 || textIndexVersion == TEXT_INDEX_VERSION_3); // supported indexes
         } else {
             b.append(e);
         }

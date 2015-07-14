@@ -31,7 +31,7 @@
 namespace mongo {
 namespace unicode {
 
-char32_t isDelimiter(char32_t codepoint, bool english);
+bool isDelimiter(char32_t codepoint, bool english);
 
 char32_t codepointToLower(char32_t codepoint, bool turkish = false);
 char32_t codepointRemoveDiacritics(char32_t codepoint);

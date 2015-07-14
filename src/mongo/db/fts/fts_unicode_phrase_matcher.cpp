@@ -45,7 +45,7 @@ bool UnicodeFTSPhraseMatcher::phraseMatches(const string& phrase,
                                             const string& haystack,
                                             bool caseSensitive) {
     return UString::needleInHaystack(
-        phrase.c_str(), haystack.c_str(), caseSensitive, true/*_ignoreDiacritics*/, _turkish);
+        haystack.c_str(), phrase.c_str(), caseSensitive, true /*_ignoreDiacritics*/, _turkish);
 }
 
 }  // namespace fts

@@ -71,7 +71,7 @@ int guessTermSize(const std::string& term, TextIndexVersion textIndexVersion) {
     if (TEXT_INDEX_VERSION_1 == textIndexVersion) {
         return term.size();
     } else {
-        invariant(TEXT_INDEX_VERSION_2 == textIndexVersion);
+        invariant(TEXT_INDEX_VERSION_2 <= textIndexVersion);
         if (term.size() <= termKeyPrefixLength) {
             return term.size();
         }
@@ -186,7 +186,7 @@ void FTSIndexFormat::_appendIndexKey(BSONObjBuilder& b,
     // See comments at the top of file for termKeyPrefixLength.
     // Apply hash for text index version 2 to long terms (longer than 32 characters).
     else {
-        invariant(TEXT_INDEX_VERSION_2 == textIndexVersion);
+        invariant(TEXT_INDEX_VERSION_2 <= textIndexVersion);
         if (term.size() <= termKeyPrefixLength) {
             b.append("", term);
         } else {

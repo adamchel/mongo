@@ -31,7 +31,7 @@
 namespace mongo {
 namespace unicode {
 
-char32_t isDelimiter(char32_t c, bool english) {
+bool isDelimiter(char32_t c, bool english) {
     // TODO: This is horribly inefficient, we need a better data structure here.
 
     // Whitespace
@@ -77,6 +77,13 @@ char32_t isDelimiter(char32_t c, bool english) {
     if (c == 0xFF62) return true;
     if (c == 0xFF63) return true;
 
+    // Dashes
+    if (c == 0x002D) return true;
+    // TODO: the rest of the dashes
+
+    // Hyphens
+    // TODO: actually put hyphens
+
     // Terminal punctutation
     if (c == 0x0021) return true;
     if (c == 0x002C) return true;
@@ -92,8 +99,11 @@ char32_t isDelimiter(char32_t c, bool english) {
     if (c == 0x061F) return true;
     if (c == 0x06D4) return true;
     if (c == 0x070C) return true;
+    // TODO: the rest of the terminal punctuation
 
-    // TODO: more...
+    // TODO: more characters that can be considered delimiters...
+    // TODO: the characters we originally considered delimiters
+    // TODO: read Unicode TR29 (UAX29) and apply a more compliant text segmentation algorithm
 
     return false;
 

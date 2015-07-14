@@ -83,6 +83,23 @@ TEST(UnicodeString, SubstringMatch) {
 
     // Case insensitive & diacritic sensitive
     ASSERT_FALSE(UString::needleInHaystack(str, find, false, false));
+
+    UString bigstr =
+        "Morten Jensen (born December 2, 1982 in Lynge) is a Danish athlete. He primarily "
+        "participates in long jump, 100 metres and 200 metres. He competed at the World "
+        "Championships in 2005 and 2007, the 2006 World Indoor Championships, the 2006 European "
+        "Championships, the 2007 World Championships and the 2008 Olympic Games without qualifying "
+        "for the final round. He was runner-up in the 2010 Finnish Elite Games rankings, just "
+        "missing out to Levern Spencer for that year's jackpot. He holds the Danish record in both "
+        "long jump and 100 metres. He also holds the Danish indoor record in the 200 metres. He "
+        "has been a part of the Sparta teamsine 2005, before then he was a part of FIF Hillerd. "
+        "His coach was Leif Dahlberg after the 2010 European Championships he change to Lars "
+        "Nielsen and Anders Miller.";
+    UString bigfind = "leif dahlberg";
+    UString bigdontfind = "summer olympics";
+
+    ASSERT(UString::needleInHaystack(bigstr, bigfind));
+    ASSERT_FALSE(UString::needleInHaystack(bigstr, bigdontfind));
 }
 
 TEST(UnicodeString, BadUTF8) {

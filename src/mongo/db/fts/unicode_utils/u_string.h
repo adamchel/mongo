@@ -46,8 +46,8 @@ using std::string;
 class UString {
 public:
     UString();
-    UString(const char utf_src[]);
-    UString(const std::vector<char32_t> udata_src);
+    UString(const char utf8_src[]);
+    UString(const std::vector<char32_t> utf32_src);
 
     UString toLower(bool turkish = false) const;
     UString toNoDiacritics() const;
@@ -63,7 +63,6 @@ public:
     const char32_t& operator[](int i) const {
         return _data[i];
     }
-
 
     friend ostream& operator<<(ostream& os, const UString& str);
 
