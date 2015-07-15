@@ -90,3 +90,9 @@ env.CppUnitTest( "fts_matcher_test", "fts_matcher_test.cpp",
 
 env.CppUnitTest( "fts_element_iterator_test", "fts_element_iterator_test.cpp",
                  LIBDEPS=["base"] )
+
+env.CppUnitTest( "fts_basic_phrase_matcher_test", "fts_basic_phrase_matcher_test.cpp",
+                 LIBDEPS=["base"] )
+
+env.CppUnitTest( "fts_basic_string_normalizer_test", "fts_basic_string_normalizer_test.cpp",
+                 LIBDEPS=["base"] )
