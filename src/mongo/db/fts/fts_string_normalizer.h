@@ -35,14 +35,13 @@
 namespace mongo {
 namespace fts {
 
-using std::string;
-
 class FTSLanguage;
 
 typedef uint8_t NormalizerOptions;
 
 /**
  * FTSStringNormalizer
+ *
  * An interface for string normalization routines. Currently used by FTSQuery to normalize query
  * parameters. Implementations do not need to support all options, but the
  * options that are and aren't supported must be clearly documented.
@@ -63,7 +62,7 @@ public:
         FoldCase = 1 << 0,
     };
 
-    virtual string normalizeString(StringData str, NormalizerOptions options) const = 0;
+    virtual std::string normalizeString(StringData str, NormalizerOptions options) const = 0;
 };
 
 }  // namespace fts

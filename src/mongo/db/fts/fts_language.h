@@ -145,9 +145,9 @@ typedef StatusWith<const FTSLanguage*> StatusWithFTSLanguage;
 
 class BasicFTSLanguage : public FTSLanguage {
 public:
-    std::unique_ptr<FTSTokenizer> createTokenizer() const override;
-    std::unique_ptr<FTSPhraseMatcher> createPhraseMatcher() const override;
-    std::unique_ptr<FTSStringNormalizer> createStringNormalizer() const override;
+    std::unique_ptr<FTSTokenizer> createTokenizer() const final;
+    std::unique_ptr<FTSPhraseMatcher> createPhraseMatcher() const final;
+    std::unique_ptr<FTSStringNormalizer> createStringNormalizer() const final;
 };
 
 extern BasicFTSLanguage languagePorterV1;

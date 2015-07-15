@@ -33,12 +33,11 @@
 namespace mongo {
 namespace fts {
 
-using std::string;
-
 typedef uint8_t PhraseMatcherOptions;
 
 /**
  * FTSPhraseMatcher
+ *
  * An interface for substring matching routines. Currently used by the FTSMatcher for finding
  * phrases within text documents. Implementations do not need to support all options, but the
  * options that are and aren't supported must be clearly documented.
@@ -60,11 +59,11 @@ public:
     };
 
     /**
-    * Does the string 'phrase' occur in the string 'haystack'?  Match is case-insensitive if
-    * 'caseSensitive' is false.
-    */
-    virtual bool phraseMatches(const string& phrase,
-                               const string& haystack,
+     * Does the string 'phrase' occur in the string 'haystack'?  Match is case-insensitive if the
+     * CaseSensitive options is not set.
+     */
+    virtual bool phraseMatches(const std::string& phrase,
+                               const std::string& haystack,
                                PhraseMatcherOptions Options) = 0;
 };
 

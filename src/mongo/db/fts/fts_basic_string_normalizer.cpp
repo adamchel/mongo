@@ -35,7 +35,7 @@ namespace fts {
 
 BasicFTSStringNormalizer::BasicFTSStringNormalizer() {}
 
-string BasicFTSStringNormalizer::normalizeString(StringData str,
+std::string BasicFTSStringNormalizer::normalizeString(StringData str,
                                                  NormalizerOptions options) const {
     if (options & Options::FoldCase) {
         return tolowerString(str);

@@ -37,10 +37,11 @@ namespace fts {
 
 /**
  * BasicFTSStringNormalizer
+ *
  * A basic string normalizer that performs ASCII-aware case folding if the FoldCase option is
  * passed.
  */
-class BasicFTSStringNormalizer : public FTSStringNormalizer {
+class BasicFTSStringNormalizer final : public FTSStringNormalizer {
     MONGO_DISALLOW_COPYING(BasicFTSStringNormalizer);
 
 public:

@@ -33,12 +33,15 @@
 namespace mongo {
 namespace fts {
 
+using std::string;
+
 bool BasicFTSPhraseMatcher::phraseMatches(const string& phrase,
                                           const string& haystack,
                                           PhraseMatcherOptions options) {
     if (options & Options::CaseSensitive) {
         return haystack.find(phrase) != string::npos;
     }
+    
     return strcasestr(haystack.c_str(), phrase.c_str()) != NULL;
 }
 
