@@ -1,0 +1,51 @@
+# -*- mode: python -*-
+
+Import("env")
+
+env.Command( 
+    target="codepoints_casefold.cpp",
+    source=[
+        "gen_casefold_map.py",
+        "$BUILD_DIR/third_party/unicode-8.0.0/CaseFolding.txt"
+    ],
+    action="$PYTHON $SOURCES $TARGETS")
+
+env.Command( 
+    target="codepoints_delimiter_list.cpp",
+    source=[
+        "gen_delimiter_list.py",
+        "$BUILD_DIR/third_party/unicode-8.0.0/PropList.txt"
+    ],
+    action="$PYTHON $SOURCES $TARGETS")
+
+env.Library(
+    target='unicode', 
+	source=[
+        'codepoints.cpp',
+        'codepoints_casefold.cpp',
+        'codepoints_delimiter_list.cpp',
+        'codepoints_diacritic_map.cpp',
+        'string.cpp',
+    ],
+    LIBDEPS=["$BUILD_DIR/mongo/base/base"]
+)
+
+env.CppUnitTest(
+    target='string_test',
+    source=[
+        'string_test.cpp'
+    ],
+    LIBDEPS=[
+        'unicode', 
+    ]
+)
+
+env.CppUnitTest(
+    target='codepoints_test',
+    source=[
+        'codepoints_test.cpp'
+    ],
+    LIBDEPS=[
+        'unicode', 
+    ]
+)
