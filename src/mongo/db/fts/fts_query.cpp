@@ -64,7 +64,7 @@ Status FTSQuery::parse(const string& query,
 
     auto normalizer = _language->createStringNormalizer();
     NormalizerOptions normOptions = FTSStringNormalizer::None;
-    if(!_caseSensitive) {
+    if (!_caseSensitive) {
         normOptions |= FTSStringNormalizer::FoldCase;
     }
 
@@ -115,7 +115,8 @@ Status FTSQuery::parse(const string& query,
                     if (inNegation) {
                         _negatedPhrases.push_back(normalizer->normalizeString(phrase, normOptions));
                     } else {
-                        _positivePhrases.push_back(normalizer->normalizeString(phrase, normOptions));
+                        _positivePhrases.push_back(
+                            normalizer->normalizeString(phrase, normOptions));
                     }
                     inNegation = false;
                     inPhrase = false;

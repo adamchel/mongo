@@ -44,8 +44,7 @@ typedef uint8_t NormalizerOptions;
 /**
  * FTSStringNormalizer
  * An interface for string normalization routines. Currently used by FTSQuery to normalize query
- * parameters. Normalization typically means performing like case folding, removing diacritics, and
- * performing Unicode normalization. Implementations do not need to support all options, but the
+ * parameters. Implementations do not need to support all options, but the
  * options that are and aren't supported must be clearly documented.
  */
 class FTSStringNormalizer {
