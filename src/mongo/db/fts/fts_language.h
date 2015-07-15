@@ -30,6 +30,8 @@
 
 #pragma once
 
+#include "mongo/db/fts/fts_phrase_matcher.h"
+#include "mongo/db/fts/fts_string_normalizer.h"
 #include "mongo/db/fts/fts_util.h"
 #include "mongo/base/status_with.h"
 
@@ -91,6 +93,19 @@ public:
      * 'textIndexVersion'.  Saves the resulting language to out-argument 'languageOut'.
      * Subsequent calls to FTSLanguage::make() will recognize the newly-registered language
      * string.
+     * Returns a new FTSPhraseMatcher instance for this language and its text index version.
+     */
+    virtual std::unique_ptr<FTSPhraseMatcher> createPhraseMatcher() const = 0;
+
+    /**
+     * Returns a new FTSStringNormalizer instance for this language and its text index version.
+     */
+    virtual std::unique_ptr<FTSStringNormalizer> createStringNormalizer() const = 0;
+
+    /**
+     * Register std::string 'languageName' as a new language with the minimum text index version
+     * 'minTextIndexVersion'.  Saves the resulting language to out-argument 'languageOut'.
+     * Subsequent calls to FTSLanguage::make() will recognize the newly-registered language string.
      */
     static void registerLanguage(StringData languageName,
                                  TextIndexVersion textIndexVersion,
@@ -134,6 +149,8 @@ typedef StatusWith<const FTSLanguage*> StatusWithFTSLanguage;
 class BasicFTSLanguage : public FTSLanguage {
 public:
     std::unique_ptr<FTSTokenizer> createTokenizer() const override;
+    std::unique_ptr<FTSPhraseMatcher> createPhraseMatcher() const override;
+    std::unique_ptr<FTSStringNormalizer> createStringNormalizer() const override;
 };
 
 extern BasicFTSLanguage languagePorterV1;

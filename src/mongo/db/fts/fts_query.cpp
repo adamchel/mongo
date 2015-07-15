@@ -61,6 +61,10 @@ Status FTSQuery::parse(const string& query,
     }
     _language = swl.getValue();
     _caseSensitive = caseSensitive;
+    auto normalizer = _language->createStringNormalizer();
+
+    normalizer->reset(static_cast<FTSStringNormalizer::Options>(
+        _caseSensitive ? FTSStringNormalizer::None : FTSStringNormalizer::FoldCase));
 
     // Build a space delimited list of words to have the FtsTokenizer tokenize
     string positiveTermSentence;
@@ -106,10 +110,11 @@ Status FTSQuery::parse(const string& query,
                     unsigned phraseStart = quoteOffset + 1;
                     unsigned phraseLength = t.offset - phraseStart;
                     StringData phrase = StringData(query).substr(phraseStart, phraseLength);
-                    if (inNegation)
-                        _negatedPhrases.push_back(normalizeString(phrase));
-                    else
-                        _positivePhrases.push_back(normalizeString(phrase));
+                    if (inNegation) {
+                        _negatedPhrases.push_back(normalizer->normalizeString(phrase));
+                    } else {
+                        _positivePhrases.push_back(normalizer->normalizeString(phrase));
+                    }
                     inNegation = false;
                     inPhrase = false;
                 } else {
@@ -168,13 +173,6 @@ void FTSQuery::_addTerms(FTSTokenizer* tokenizer, const string& sentence, bool n
 
         activeTerms.insert(word);
     }
-}
-
-string FTSQuery::normalizeString(StringData str) const {
-    if (_caseSensitive) {
-        return str.toString();
-    }
-    return tolowerString(str);
 }
 
 namespace {

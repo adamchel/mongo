@@ -34,6 +34,8 @@
 
 #include "mongo/base/init.h"
 #include "mongo/db/fts/fts_basic_tokenizer.h"
+#include "mongo/db/fts/fts_basic_phrase_matcher.h"
+#include "mongo/db/fts/fts_basic_string_normalizer.h"
 #include "mongo/stdx/memory.h"
 #include "mongo/util/assert_util.h"
 #include "mongo/util/mongoutils/str.h"
@@ -83,6 +85,14 @@ LanguageMapV1 languageMapV1;
 
 std::unique_ptr<FTSTokenizer> BasicFTSLanguage::createTokenizer() const {
     return stdx::make_unique<BasicFTSTokenizer>(this);
+}
+
+std::unique_ptr<FTSPhraseMatcher> BasicFTSLanguage::createPhraseMatcher() const {
+    return stdx::make_unique<BasicFTSPhraseMatcher>();
+}
+
+std::unique_ptr<FTSStringNormalizer> BasicFTSLanguage::createStringNormalizer() const {
+    return stdx::make_unique<BasicFTSStringNormalizer>();
 }
 
 MONGO_INITIALIZER_GROUP(FTSAllLanguagesRegistered, MONGO_NO_PREREQUISITES, MONGO_NO_DEPENDENTS);
