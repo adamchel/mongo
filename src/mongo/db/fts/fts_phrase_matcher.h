@@ -35,6 +35,8 @@ namespace fts {
 
 using std::string;
 
+typedef uint8_t PhraseMatcherOptions;
+
 /**
  * FTSPhraseMatcher
  * An interface for substring matching routines. Currently used by the FTSMatcher for finding
@@ -44,13 +46,25 @@ class FTSPhraseMatcher {
 public:
     virtual ~FTSPhraseMatcher() = default;
 
+	enum Options {
+		/**
+		 * No options.
+		 */
+		None = 0,
+
+        /**
+         * Lowercase strings as part of normalization.
+         */
+		CaseSensitive = 1 << 0,
+    };
+
     /**
     * Does the string 'phrase' occur in the string 'haystack'?  Match is case-insensitive if
     * 'caseSensitive' is false.
     */
     virtual bool phraseMatches(const string& phrase,
                                const string& haystack,
-                               bool caseSensitive) = 0;
+                               PhraseMatcherOptions Options) = 0;
 };
 
 }  // namespace fts

@@ -40,7 +40,12 @@ namespace fts {
 
 using std::string;
 
-FTSMatcher::FTSMatcher(const FTSQuery& query, const FTSSpec& spec) : _query(query), _spec(spec) {}
+FTSMatcher::FTSMatcher(const FTSQuery& query, const FTSSpec& spec) : _query(query), _spec(spec) {
+    _phraseMatcherOptions = FTSPhraseMatcher::None;
+    if (_query.getCaseSensitive()) {
+        _phraseMatcherOptions &= FTSPhraseMatcher::CaseSensitive;
+    }
+}
 
 bool FTSMatcher::matches(const BSONObj& obj) const {
     if (canSkipPositiveTermCheck()) {
@@ -152,7 +157,7 @@ bool FTSMatcher::_phraseMatch(const string& phrase, const BSONObj& obj) const {
     while (it.more()) {
         FTSIteratorValue val = it.next();
         if (val._language->createPhraseMatcher()->phraseMatches(
-                phrase, val._text, _query.getCaseSensitive())) {
+                phrase, val._text, _phraseMatcherOptions)) {
             return true;
         }
     }

@@ -39,12 +39,14 @@ using std::string;
 
 class FTSLanguage;
 
+typedef uint8_t NormalizerOptions;
+
 /**
  * FTSStringNormalizer
  * An interface for string normalization routines. Currently used by FTSQuery to normalize query
- * parameters. Normalization typically means things like case folding, removing diacritics, and
+ * parameters. Normalization typically means performing like case folding, removing diacritics, and
  * performing Unicode normalization. Implementations do not need to support all options, but the
- * options that are and aren't supported should be clearly documented.
+ * options that are and aren't supported must be clearly documented.
  */
 class FTSStringNormalizer {
 public:
@@ -52,7 +54,7 @@ public:
 
     enum Options {
         /**
-         * None.
+         * No options.
          */
         None = 0,
 
@@ -62,10 +64,7 @@ public:
         FoldCase = 1 << 0,
     };
 
-    virtual void reset(Options options) = 0;
-
-    virtual string normalizeString(StringData str) const = 0;
-
+    virtual string normalizeString(StringData str, NormalizerOptions options) const = 0;
 };
 
 }  // namespace fts

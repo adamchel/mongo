@@ -35,12 +35,9 @@ namespace fts {
 
 BasicFTSStringNormalizer::BasicFTSStringNormalizer() {}
 
-void BasicFTSStringNormalizer::reset(Options options) {
-    _options = options;
-}
-
-string BasicFTSStringNormalizer::normalizeString(StringData str) const {
-    if (_options & Options::FoldCase) {
+string BasicFTSStringNormalizer::normalizeString(StringData str,
+                                                 NormalizerOptions options) const {
+    if (options & Options::FoldCase) {
         return tolowerString(str);
     }
 

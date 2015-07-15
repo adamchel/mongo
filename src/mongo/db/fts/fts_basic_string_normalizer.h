@@ -44,19 +44,12 @@ class BasicFTSStringNormalizer : public FTSStringNormalizer {
     MONGO_DISALLOW_COPYING(BasicFTSStringNormalizer);
 
 public:
-	
-	BasicFTSStringNormalizer();
+    BasicFTSStringNormalizer();
 
-	void reset(Options options) final;
-
-	/**
+    /**
      * Lowercases "str" if _caseSensitive is set, else returns a copy of "str" unchanged.
      */
-    string normalizeString(StringData str) const final;
-
-private:
-	Options _options;
-
+    string normalizeString(StringData str, NormalizerOptions options) const final;
 };
 
 }  // namespace fts

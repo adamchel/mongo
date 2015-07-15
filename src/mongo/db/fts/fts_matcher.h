@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "mongo/db/fts/fts_phrase_matcher.h"
 #include "mongo/db/fts/fts_query.h"
 #include "mongo/db/fts/fts_spec.h"
 #include "mongo/db/fts/tokenizer.h"
@@ -104,6 +105,9 @@ private:
     // TODO These should be unowned pointers instead of owned copies.
     const FTSQuery _query;
     const FTSSpec _spec;
+
+    // Options to pass to the FTSPhraseMatcher.
+    int _phraseMatcherOptions;
 };
 }
 }

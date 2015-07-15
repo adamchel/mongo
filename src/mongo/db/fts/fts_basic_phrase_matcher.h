@@ -37,8 +37,8 @@ namespace fts {
 /**
  * BasicFTSPhraseMatcher
  *
- * A phrase matcher that looks for exact substring matches with basic ASCII-aware case
- * insensitivity if caseSensitive is set to false .
+ * A phrase matcher that looks for exact substring matches with optional ASCII-aware case
+ * insensitivity.
  */
 class BasicFTSPhraseMatcher : public FTSPhraseMatcher {
     MONGO_DISALLOW_COPYING(BasicFTSPhraseMatcher);
@@ -46,7 +46,9 @@ class BasicFTSPhraseMatcher : public FTSPhraseMatcher {
 public:
     BasicFTSPhraseMatcher() {}
 
-    bool phraseMatches(const string& phrase, const string& haystack, bool caseSensitive) final;
+    bool phraseMatches(const string& phrase,
+                       const string& haystack,
+                       PhraseMatcherOptions options) final;
 };
 
 }  // namespace fts
