@@ -43,7 +43,7 @@ using std::string;
 FTSMatcher::FTSMatcher(const FTSQuery& query, const FTSSpec& spec) : _query(query), _spec(spec) {
     _phraseMatcherOptions = FTSPhraseMatcher::None;
     if (_query.getCaseSensitive()) {
-        _phraseMatcherOptions &= FTSPhraseMatcher::CaseSensitive;
+        _phraseMatcherOptions |= FTSPhraseMatcher::CaseSensitive;
     }
 }
 

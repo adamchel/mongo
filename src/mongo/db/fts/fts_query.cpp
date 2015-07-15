@@ -64,8 +64,8 @@ Status FTSQuery::parse(const string& query,
 
     auto normalizer = _language->createStringNormalizer();
     NormalizerOptions normOptions = FTSStringNormalizer::None;
-    if(_caseSensitive) {
-        normOptions &= FTSStringNormalizer::FoldCase;
+    if(!_caseSensitive) {
+        normOptions |= FTSStringNormalizer::FoldCase;
     }
 
     // Build a space delimited list of words to have the FtsTokenizer tokenize
