@@ -33,18 +33,17 @@
 namespace mongo {
 namespace fts {
 
-// Do nothing
+// No options
 TEST(FtsBasicStringNormalizer, NoOptions) {
     std::string test1 = "MongoDB";
     std::string test2 = "Web";
     std::string test3 = "Scale";
 
     BasicFTSStringNormalizer stringNormalizer;
-    NormalizerOptions options = FTSStringNormalizer::None;
 
-    ASSERT_EQUALS(stringNormalizer.normalizeString(test1, options), "MongoDB");
-    ASSERT_EQUALS(stringNormalizer.normalizeString(test2, options), "Web");
-    ASSERT_EQUALS(stringNormalizer.normalizeString(test3, options), "Scale");
+    ASSERT_EQUALS(stringNormalizer.normalizeString(test1, FTSStringNormalizer::None), "MongoDB");
+    ASSERT_EQUALS(stringNormalizer.normalizeString(test2, FTSStringNormalizer::None), "Web");
+    ASSERT_EQUALS(stringNormalizer.normalizeString(test3, FTSStringNormalizer::None), "Scale");
 }
 
 // Fold case
@@ -54,11 +53,10 @@ TEST(FtsBasicStringNormalizer, FoldCase) {
     std::string test3 = "Scale";
 
     BasicFTSStringNormalizer stringNormalizer;
-    NormalizerOptions options = FTSStringNormalizer::FoldCase;
 
-    ASSERT_EQUALS(stringNormalizer.normalizeString(test1, options), "mongodb");
-    ASSERT_EQUALS(stringNormalizer.normalizeString(test2, options), "web");
-    ASSERT_EQUALS(stringNormalizer.normalizeString(test3, options), "scale");
+    ASSERT_EQUALS(stringNormalizer.normalizeString(test1, FTSStringNormalizer::FoldCase), "mongodb");
+    ASSERT_EQUALS(stringNormalizer.normalizeString(test2, FTSStringNormalizer::FoldCase), "web");
+    ASSERT_EQUALS(stringNormalizer.normalizeString(test3, FTSStringNormalizer::FoldCase), "scale");
 }
 
 }  // namespace fts

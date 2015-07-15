@@ -40,22 +40,23 @@ typedef uint8_t PhraseMatcherOptions;
 /**
  * FTSPhraseMatcher
  * An interface for substring matching routines. Currently used by the FTSMatcher for finding
- * phrases within text documents.
+ * phrases within text documents. Implementations do not need to support all options, but the
+ * options that are and aren't supported must be clearly documented.
  */
 class FTSPhraseMatcher {
 public:
     virtual ~FTSPhraseMatcher() = default;
 
-	enum Options {
-		/**
-		 * No options.
-		 */
-		None = 0,
+    enum Options {
+        /**
+         * No options.
+         */
+        None = 0,
 
         /**
          * Lowercase strings as part of normalization.
          */
-		CaseSensitive = 1 << 0,
+        CaseSensitive = 1 << 0,
     };
 
     /**

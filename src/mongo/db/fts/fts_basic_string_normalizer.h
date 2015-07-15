@@ -37,8 +37,8 @@ namespace fts {
 
 /**
  * BasicFTSStringNormalizer
- * A basic string normalizer that simply performs ASCII-aware case folding if _caseSensitive is set
- * to true.
+ * A basic string normalizer that performs ASCII-aware case folding if the FoldCase option is
+ * passed.
  */
 class BasicFTSStringNormalizer : public FTSStringNormalizer {
     MONGO_DISALLOW_COPYING(BasicFTSStringNormalizer);
@@ -47,7 +47,7 @@ public:
     BasicFTSStringNormalizer();
 
     /**
-     * Lowercases "str" if _caseSensitive is set, else returns a copy of "str" unchanged.
+     * Lowercases "str" if FoldCase option is set, else returns a copy of "str" unchanged.
      */
     string normalizeString(StringData str, NormalizerOptions options) const final;
 };
