@@ -2,6 +2,12 @@
 
 Import("env")
 
+env.SConscript(
+    dirs=[
+        'unicode_utils',
+    ],
+)
+
 stop_word_languages = [
     'danish',
     'dutch',
@@ -45,6 +51,7 @@ baseEnv.Library('base', [
         'tokenizer.cpp',
         ], LIBDEPS=["$BUILD_DIR/mongo/base/base",
                     "$BUILD_DIR/mongo/db/common",
+                    "$BUILD_DIR/mongo/db/fts/unicode_utils/unicode_utils",
                     "$BUILD_DIR/mongo/platform/platform",
                     "$BUILD_DIR/third_party/shim_stemmer"
                     ])
