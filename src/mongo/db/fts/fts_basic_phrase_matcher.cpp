@@ -45,10 +45,5 @@ bool BasicFTSPhraseMatcher::phraseMatches(const string& phrase,
     return strcasestr(haystack.c_str(), phrase.c_str()) != NULL;
 }
 
-Status BasicFTSPhraseMatcher::supportsOptions(PhraseMatcherOptions options) const {
-    // All options are supported.
-    return Status::OK();
-}
-
 }  // namespace fts
 }  // namespace mongo

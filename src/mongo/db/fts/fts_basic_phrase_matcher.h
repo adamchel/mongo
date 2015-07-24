@@ -47,8 +47,6 @@ public:
     bool phraseMatches(const std::string& phrase,
                        const std::string& haystack,
                        PhraseMatcherOptions options) const final;
-
-    Status supportsOptions(PhraseMatcherOptions options) const final;
 };
 
 }  // namespace fts

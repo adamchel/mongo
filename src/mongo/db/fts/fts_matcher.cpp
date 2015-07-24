@@ -153,14 +153,11 @@ bool FTSMatcher::_phraseMatch(const string& phrase, const BSONObj& obj) const {
     while (it.more()) {
         FTSIteratorValue val = it.next();
 
-        const FTSPhraseMatcher& phraseMatcher = val._language->getPhraseMatcher();
-        FTSPhraseMatcher::PhraseMatcherOptions options =
-            _query.getCaseSensitive() ? FTSPhraseMatcher::kCaseSensitive : FTSPhraseMatcher::kNone;
-
-        // TODO: Supported options should be checked during parsing. SERVER-19510.
-        uassertStatusOK(phraseMatcher.supportsOptions(options));
-
-        if (phraseMatcher.phraseMatches(phrase, val._text, options)) {
+        if (val._language->getPhraseMatcher().phraseMatches(phrase,
+                                                            val._text,
+                                                            _query.getCaseSensitive()
+                                                                ? FTSPhraseMatcher::kCaseSensitive
+                                                                : FTSPhraseMatcher::kNone)) {
             return true;
         }
     }

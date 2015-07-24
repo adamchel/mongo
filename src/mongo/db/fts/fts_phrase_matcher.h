@@ -31,8 +31,6 @@
 #include <cstdint>
 #include <string>
 
-#include "mongo/base/status.h"
-
 namespace mongo {
 namespace fts {
 
@@ -56,17 +54,11 @@ public:
     static const int kCaseSensitive = 1 << 0;
 
     /**
-     * Does the string 'phrase' occur in the string 'haystack'? Assumes that the options passed in
-     * have been checked with supportsOptions.
+     * Does the string 'phrase' occur in the string 'haystack'?
      */
     virtual bool phraseMatches(const std::string& phrase,
                                const std::string& haystack,
                                PhraseMatcherOptions options) const = 0;
-
-    /**
-     * Checks if the FTSPhraseMatcher instance supports all of the given options.
-     */
-    virtual Status supportsOptions(PhraseMatcherOptions options) const = 0;
 };
 
 }  // namespace fts

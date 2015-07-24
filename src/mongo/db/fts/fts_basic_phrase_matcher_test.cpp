@@ -46,8 +46,6 @@ TEST(FtsBasicPhraseMatcher, CaseInsensitive) {
     BasicFTSPhraseMatcher phraseMatcher;
     FTSPhraseMatcher::PhraseMatcherOptions options = FTSPhraseMatcher::kNone;
 
-    ASSERT_OK(phraseMatcher.supportsOptions(options));
-
     ASSERT(phraseMatcher.phraseMatches(find1, str1, options));
     ASSERT(phraseMatcher.phraseMatches(find2, str2, options));
 
@@ -67,8 +65,6 @@ TEST(FtsBasicPhraseMatcher, CaseSensitive) {
 
     BasicFTSPhraseMatcher phraseMatcher;
     FTSPhraseMatcher::PhraseMatcherOptions options = FTSPhraseMatcher::kCaseSensitive;
-
-    ASSERT_OK(phraseMatcher.supportsOptions(options));
 
     ASSERT(phraseMatcher.phraseMatches(find1, str1, options));
     ASSERT(phraseMatcher.phraseMatches(find2, str2, options));
