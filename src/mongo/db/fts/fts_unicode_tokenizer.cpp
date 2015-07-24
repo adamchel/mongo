@@ -28,7 +28,7 @@
 
 #include "mongo/platform/basic.h"
 
-#include "mongo/db/fts/fts_basic_tokenizer.h"
+#include "mongo/db/fts/fts_unicode_tokenizer.h"
 
 #include "mongo/db/fts/fts_query.h"
 #include "mongo/db/fts/fts_spec.h"
@@ -44,51 +44,77 @@ namespace fts {
 
 using std::string;
 
-BasicFTSTokenizer::BasicFTSTokenizer(const FTSLanguage* language)
-    : _language(language), _stemmer(language), _stopWords(StopWords::getStopWords(language)) {}
+UnicodeFTSTokenizer::UnicodeFTSTokenizer(const FTSLanguage* language)
+    : _language(language), _stemmer(language), _stopWords(StopWords::getStopWords(language)) {
+    if (_language->str() == "english") {
+        _delimListLanguage = unicode::DelimiterListLanguage::kEnglish;
+    } else {
+        _delimListLanguage = unicode::DelimiterListLanguage::kNotEnglish;
+    }
 
-void BasicFTSTokenizer::reset(StringData document, FTSTokenizerOptions options) {
-    _options = options;
-    _document = document.toString();
-    _tokenizer = stdx::make_unique<Tokenizer>(_language, _document);
+    if (_language->str() == "turkish") {
+        _caseFoldMode = unicode::CaseFoldMode::kTurkish;
+    } else {
+        _caseFoldMode = unicode::CaseFoldMode::kNormal;
+    }
 }
 
-bool BasicFTSTokenizer::moveNext() {
+void UnicodeFTSTokenizer::reset(StringData document, FTSTokenizerOptions options) {
+    _options = options;
+    _pos = 0;
+    _document = unicode::String(document);
+
+    _skipDelimiters();
+}
+
+bool UnicodeFTSTokenizer::moveNext() {
     while (true) {
-        bool hasMore = _tokenizer->more();
-        if (!hasMore) {
+        if (_pos >= _document.size()) {
             _stem = "";
             return false;
         }
 
-        Token token = _tokenizer->next();
+        // Find next word
+        size_t start = _pos++;
+        while (_pos < _document.size() &&
+               (!unicode::codepointIsDelimiter(_document[_pos], _delimListLanguage))) {
+            ++_pos;
+        }
+        unicode::String token = _document.substr(start, _pos - start);
+        _skipDelimiters();
 
-        // Do not return delimiters
-        if (token.type != Token::TEXT) {
+        unicode::String word = token.toLower(_caseFoldMode);
+
+        // Stop words are case-sensitive and diacritic sensitive, so we need them to be lower cased
+        // but with diacritics not removed to check against the stop word list.
+        if ((_options & kFilterStopWords) && _stopWords->isStopWord(word.toString())) {
             continue;
         }
 
-        string word = token.data.toString();
-
-        word = tolowerString(token.data);
-
-        // Stop words are case-sensitive so we need them to be lower cased to check
-        // against the stop word list
-        if ((_options & FTSTokenizer::kFilterStopWords) && _stopWords->isStopWord(word)) {
-            continue;
+        if (_options & kGenerateCaseSensitiveTokens) {
+            word = token;
         }
 
-        if (_options & FTSTokenizer::kGenerateCaseSensitiveTokens) {
-            word = token.data.toString();
+        if (!(_options & kGenerateDiacriticSensitiveTokens)) {
+            word = word.removeDiacritics();
         }
 
-        _stem = _stemmer.stem(word);
+        _stem = _stemmer.stem(word.toString());
         return true;
     }
 }
 
-StringData BasicFTSTokenizer::get() const {
+StringData UnicodeFTSTokenizer::get() const {
     return _stem;
+}
+
+bool UnicodeFTSTokenizer::_skipDelimiters() {
+    size_t start = _pos;
+    while (_pos < _document.size() &&
+           unicode::codepointIsDelimiter(_document[_pos], _delimListLanguage)) {
+        ++_pos;
+    }
+    return _pos > start;
 }
 
 }  // namespace fts
