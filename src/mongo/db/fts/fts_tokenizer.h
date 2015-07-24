@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "mongo/base/disallow_copying.h"
 #include "mongo/base/string_data.h"
 
@@ -49,30 +51,35 @@ public:
     virtual ~FTSTokenizer() = default;
 
     /**
-     * Options for generating tokens
+     * Options for generating tokens.
      */
-    enum Options {
-        /**
-         * Default means lower cased, and stop words are not filtered.
-         */
-        None = 0,
+    using FTSTokenizerOptions = uint8_t;
 
-        /**
-         * Do not lower case terms.
-         */
-        GenerateCaseSensitiveTokens = 1 << 0,
+    /**
+     * Default means lower cased, diacritics removed, and stop words are not filtered.
+     */
+    const static FTSTokenizerOptions kNone = 0;
 
-        /**
-         * Filter out stop words from return tokens.
-         */
-        FilterStopWords = 1 << 1,
-    };
+    /**
+     * Do not lower case terms.
+     */
+    const static FTSTokenizerOptions kGenerateCaseSensitiveTokens = 1 << 0;
+
+    /**
+     * Filter out stop words from return tokens.
+     */
+    const static FTSTokenizerOptions kFilterStopWords = 1 << 1;
+
+    /**
+     * Do not remove diacritics from terms.
+     */
+    const static FTSTokenizerOptions kGenerateDiacriticSensitiveTokens = 1 << 2;
 
     /**
      * Process a new document, and discards any previous results.
      * May be called multiple times on an instance of an iterator.
      */
-    virtual void reset(StringData document, Options options) = 0;
+    virtual void reset(StringData document, FTSTokenizerOptions options) = 0;
 
     /**
      * Moves to the next token in the iterator.
