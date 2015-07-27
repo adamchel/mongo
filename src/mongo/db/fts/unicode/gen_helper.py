@@ -1,5 +1,5 @@
 def getCopyrightNotice():
-	return """/**
+    return """/**
  *    Copyright (C) 2015 MongoDB Inc.
  *
  *    This program is free software: you can redistribute it and/or  modify
@@ -28,10 +28,10 @@ def getCopyrightNotice():
  */\n\n"""
 
 def openNamespaces():
-	return "namespace mongo {\nnamespace unicode {\n\n"
+    return "namespace mongo {\nnamespace unicode {\n\n"
 
 def closeNamespaces():
-	return "\n} // namespace unicode\n} // namespace mongo\n"
+    return "\n} //  namespace unicode\n} //  namespace mongo\n"
 
 def include(header):
-	return '#include "' + header + '"\n'
+    return '#include "' + header + '"\n'

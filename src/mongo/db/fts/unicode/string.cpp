@@ -32,10 +32,20 @@
 #include <codecvt>
 #include <locale>
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#include "mongo/shell/linenoise_utf8.h"
+#endif
+
 #include "mongo/util/assert_util.h"
 
 namespace mongo {
 namespace unicode {
+
+#if defined(_MSC_VER) && _MSC_VER < 1900
+using linenoise_utf8::copyString32to8;
+using linenoise_utf8::copyString8to32;
+typedef int char32_t;
+#endif
 
 using std::codecvt;
 using std::codecvt_base;
@@ -46,11 +56,20 @@ using std::u32string;
 using std::use_facet;
 
 String::String(const StringData utf8_src) {
-    auto& conversion_facet = use_facet<codecvt<char32_t, char, mbstate_t>>(locale::classic());
-    mbstate_t mb = mbstate_t();
-
     // _data is the target, resize it so that it's guaranteed to fit all of the input characters.
     _data.resize(utf8_src.size());
+
+#if defined(_MSC_VER) && _MSC_VER < 1900
+    int result = 0;
+    size_t resultSize = 0;
+
+    copyString8to32(
+        static_cast<int*>(&_data[0]), &utf8_src.rawData()[0], _data.size(), resultSize, result);
+
+    uassert(28732, "text contains invalid UTF-8", result == 0);
+#else
+    auto& conversion_facet = use_facet<codecvt<char32_t, char, mbstate_t>>(locale::classic());
+    mbstate_t mb = mbstate_t();
 
     // Apply the UTF-8 -> UTF-32 conversion.
     const char* from_next;
@@ -71,22 +90,26 @@ String::String(const StringData utf8_src) {
         case codecvt_base::partial:
         case codecvt_base::error:
             // Failure
-            uasserted(28732, "text contains invalid UTF-8");
+            uasserted(28733, "text contains invalid UTF-8");
             break;
         case codecvt_base::noconv:
             invariant(false);
             break;
     }
 
+    size_t resultSize = to_next - &_data[0];
+#endif
     // Resize _data so it is only as big as what it contains.
-    _data.resize(to_next - &_data[0]);
+    _data.resize(resultSize);
 }
 
-String::String(String&& src) : _data(std::move(src._data)) {}
-
-String::String(u32string&& src) : _data(src) {}
+String::String(u32string&& src) : _data(std::move(src)) {}
 
 std::string String::toString() const {
+#if defined(_MSC_VER) && _MSC_VER < 1900
+    std::string output(_data.size() * 4, '\0');
+    size_t resultSize = copyString32to8(&output[0], &_data[0], output.size());
+#else
     auto& conversion_facet = use_facet<codecvt<char32_t, char, mbstate_t>>(locale::classic());
     mbstate_t mb = mbstate_t();
 
@@ -117,9 +140,12 @@ std::string String::toString() const {
             invariant(false);
             break;
     }
+    size_t resultSize = to_next - &output[0];
+
+#endif
 
     // Resize output so it is only as large as what it contains.
-    output.resize(to_next - &output[0]);
+    output.resize(resultSize);
     return output;
 }
 
@@ -139,8 +165,9 @@ String String::toLower(CaseFoldMode mode) const {
     u32string newdata(_data.size(), 0);
     auto index = 0;
     for (auto codepoint : _data) {
-        newdata[index++] = (codepointToLower(codepoint, mode));
+        newdata[index++] = codepointToLower(codepoint, mode);
     }
+
     return String(std::move(newdata));
 }
 
@@ -148,10 +175,11 @@ String String::removeDiacritics() const {
     u32string newdata(_data.size(), 0);
     auto index = 0;
     for (auto codepoint : _data) {
-        if (!codepointIsCombiningDiacriticalMark(codepoint)) {
-            newdata[index++] = (codepointRemoveDiacritics(codepoint));
+        if (!codepointIsDiacritic(codepoint)) {
+            newdata[index++] = codepointRemoveDiacritics(codepoint);
         }
     }
+
     newdata.resize(index);
     return String(std::move(newdata));
 }
@@ -169,41 +197,22 @@ bool String::substrMatch(const String& str,
                                find._data.cend(),
                                [&](char32_t c1, char32_t c2) { return (c1 == c2); }) !=
                 str._data.cend();
-        } else {
-            // Case insensitive and diacritic sensitive
-            return std::search(str._data.cbegin(),
-                               str._data.cend(),
-                               find._data.cbegin(),
-                               find._data.cend(),
-                               [&](char32_t c1, char32_t c2) {
-                                   return (codepointToLower(c1, cfMode) ==
-                                           codepointToLower(c2, cfMode));
-                               }) != str._data.cend();
         }
-
-    } else {
-        String cleanStr = str.removeDiacritics();
-        String cleanFind = find.removeDiacritics();
-        if (options & kCaseSensitive) {
-            // Case sensitive and diacritic insensitive
-            return std::search(cleanStr._data.cbegin(),
-                               cleanStr._data.cend(),
-                               cleanFind._data.cbegin(),
-                               cleanFind._data.cend(),
-                               [&](char32_t c1, char32_t c2) { return (c1 == c2); }) !=
-                cleanStr._data.cend();
-        } else {
-            // Case insensitive and diacritic insensitive
-            return std::search(cleanStr._data.cbegin(),
-                               cleanStr._data.cend(),
-                               cleanFind._data.cbegin(),
-                               cleanFind._data.cend(),
-                               [&](char32_t c1, char32_t c2) {
-                                   return (codepointToLower(c1, cfMode) ==
-                                           codepointToLower(c2, cfMode));
-                               }) != cleanStr._data.cend();
-        }
+        // Case insensitive and diacritic sensitive
+        return std::search(str._data.cbegin(),
+                           str._data.cend(),
+                           find._data.cbegin(),
+                           find._data.cend(),
+                           [&](char32_t c1, char32_t c2) {
+                               return (codepointToLower(c1, cfMode) ==
+                                       codepointToLower(c2, cfMode));
+                           }) != str._data.cend();
     }
+
+    String cleanStr = str.removeDiacritics();
+    String cleanFind = find.removeDiacritics();
+
+    return substrMatch(cleanStr, cleanFind, options | kDiacriticSensitive, cfMode);
 }
 
 }  // namespace unicode

@@ -3,16 +3,17 @@
 import os
 import sys
 
-from gen_helper import getCopyrightNotice, openNamespaces, closeNamespaces, include
+from gen_helper import getCopyrightNotice, openNamespaces, closeNamespaces, \
+    include
 
-def generate(unicode_casefold_file, source):
-    """Generates a C++ source file that contains a Unicode case folding function. 
+def generate(unicode_casefold_file, target):
+    """Generates a C++ source file that contains a Unicode case folding 
+       function.
 
-    The case folding function contains a switch statement with cases for every Unicode
-    codepoint that has a case folding mapping. 
+    The case folding function contains a switch statement with cases for every
+    Unicode codepoint that has a case folding mapping. 
     """
-    print("source : %s" % source)
-    out = open(source, "w")
+    out = open(target, "w")
 
     out.write(getCopyrightNotice())
     out.write(include("mongo/db/fts/unicode/codepoints.h"))
@@ -24,20 +25,26 @@ def generate(unicode_casefold_file, source):
     cf_file = open(unicode_casefold_file, 'r')
 
     for line in cf_file:
+        # Filter out blank lines and lines that start with #
         data = line[:line.find('#')]
-        values = data.split("; ")
-        if len(values) < 3:
+        if(data == ""):
             continue
+
+        # Parse the data on the line
+        values = data.split("; ")
+        assert(len(values) == 4)
 
         status = values[1]
         if status == 'C' or status == 'S':
-            # We only include the "Common" and "Simple" mappings. "Full" case folding mappings
-            # expand certain letters to multiple codepoints, which we currently do not support.
+            # We only include the "Common" and "Simple" mappings. "Full" case 
+            # folding mappings expand certain letters to multiple codepoints, 
+            # which we currently do not support.
             original_codepoint = int(values[0], 16)
             codepoint_mapping  = int(values[2], 16)
             case_mappings[original_codepoint] = codepoint_mapping
 
-    out.write("""char32_t codepointToLower(char32_t codepoint, CaseFoldMode mode) {
+    out.write("""char32_t codepointToLower(char32_t codepoint, CaseFoldMode \
+mode) { 
     if (mode == CaseFoldMode::kTurkish) {
         if (codepoint == 0x049) {  // I -> ı
             return 0x131;
@@ -50,7 +57,8 @@ def generate(unicode_casefold_file, source):
 
     for mapping in case_mappings:
         out.write("\
-    case " + str(hex(mapping)) + ": return " + str(hex(case_mappings[mapping])) +";\n")
+    case " + str(hex(mapping)) + ": return " + \
+        str(hex(case_mappings[mapping])) +";\n")
 
     out.write("\
     default: return codepoint;\n    }\n}")

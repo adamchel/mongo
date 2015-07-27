@@ -34,7 +34,7 @@ namespace unicode {
 /**
  * There are currently two options supported for the delimiter list. The only difference between the
  * English and NotEnglish modes is that in English, the apostrophe is considered a delimiter, while
- * in NotEnglish, it isn't.
+ * in NotEnglish, it is not.
  */
 enum class DelimiterListLanguage {
     kEnglish,
@@ -53,11 +53,10 @@ enum class CaseFoldMode {
 };
 
 /**
- * Returns whether or not the given codepoint is a combining mark. In 'D' normalized Unicode text,
- * diacritics are removed by removing combining marks. See implementation for which Unicode code
- * blocks are considered blocks of combining marks.
+ * Returns whether or not the given codepoint is a diacritic. In 'D' normalized Unicode text,
+ * diacritics are removed by removing characters with these codepoints.
  */
-bool codepointIsCombiningDiacriticalMark(char32_t codepoint);
+bool codepointIsDiacritic(char32_t codepoint);
 
 /**
  * Returns whether or not the given codepoint is considered a delimiter in the language 'lang'.

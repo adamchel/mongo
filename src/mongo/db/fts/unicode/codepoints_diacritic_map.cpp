@@ -537,16 +537,10 @@ char32_t codepointRemoveDiacritics(char32_t codepoint) {
             return 0x59;
         case 0x233:
             return 0x79;
-        case 0x374:
-            return 0x2b9;
         case 0x37e:
             return 0x3b;
-        case 0x385:
-            return 0xa8;
         case 0x386:
             return 0x391;
-        case 0x387:
-            return 0xb7;
         case 0x388:
             return 0x395;
         case 0x389:
@@ -693,6 +687,54 @@ char32_t codepointRemoveDiacritics(char32_t codepoint) {
             return 0x42b;
         case 0x4f9:
             return 0x44b;
+        case 0x929:
+            return 0x928;
+        case 0x931:
+            return 0x930;
+        case 0x934:
+            return 0x933;
+        case 0x958:
+            return 0x915;
+        case 0x959:
+            return 0x916;
+        case 0x95a:
+            return 0x917;
+        case 0x95b:
+            return 0x91c;
+        case 0x95c:
+            return 0x921;
+        case 0x95d:
+            return 0x922;
+        case 0x95e:
+            return 0x92b;
+        case 0x95f:
+            return 0x92f;
+        case 0x9dc:
+            return 0x9a1;
+        case 0x9dd:
+            return 0x9a2;
+        case 0x9df:
+            return 0x9af;
+        case 0xa33:
+            return 0xa32;
+        case 0xa36:
+            return 0xa38;
+        case 0xa59:
+            return 0xa16;
+        case 0xa5a:
+            return 0xa17;
+        case 0xa5b:
+            return 0xa1c;
+        case 0xa5e:
+            return 0xa2b;
+        case 0xb5c:
+            return 0xb21;
+        case 0xb5d:
+            return 0xb22;
+        case 0xdda:
+            return 0xdd9;
+        case 0xddd:
+            return 0xddc;
         case 0x1e00:
             return 0x41;
         case 0x1e01:
@@ -1533,8 +1575,6 @@ char32_t codepointRemoveDiacritics(char32_t codepoint) {
             return 0x391;
         case 0x1fbe:
             return 0x3b9;
-        case 0x1fc1:
-            return 0xa8;
         case 0x1fc2:
             return 0x3b7;
         case 0x1fc3:
@@ -1555,12 +1595,6 @@ char32_t codepointRemoveDiacritics(char32_t codepoint) {
             return 0x397;
         case 0x1fcc:
             return 0x397;
-        case 0x1fcd:
-            return 0x1fbf;
-        case 0x1fce:
-            return 0x1fbf;
-        case 0x1fcf:
-            return 0x1fbf;
         case 0x1fd0:
             return 0x3b9;
         case 0x1fd1:
@@ -1581,12 +1615,6 @@ char32_t codepointRemoveDiacritics(char32_t codepoint) {
             return 0x399;
         case 0x1fdb:
             return 0x399;
-        case 0x1fdd:
-            return 0x1ffe;
-        case 0x1fde:
-            return 0x1ffe;
-        case 0x1fdf:
-            return 0x1ffe;
         case 0x1fe0:
             return 0x3c5;
         case 0x1fe1:
@@ -1613,12 +1641,6 @@ char32_t codepointRemoveDiacritics(char32_t codepoint) {
             return 0x3a5;
         case 0x1fec:
             return 0x3a1;
-        case 0x1fed:
-            return 0xa8;
-        case 0x1fee:
-            return 0xa8;
-        case 0x1fef:
-            return 0x60;
         case 0x1ff2:
             return 0x3c9;
         case 0x1ff3:
@@ -1639,8 +1661,6 @@ char32_t codepointRemoveDiacritics(char32_t codepoint) {
             return 0x3a9;
         case 0x1ffc:
             return 0x3a9;
-        case 0x1ffd:
-            return 0xb4;
         case 0x2000:
             return 0x2002;
         case 0x2001:
@@ -1745,6 +1765,122 @@ char32_t codepointRemoveDiacritics(char32_t codepoint) {
             return 0x3009;
         case 0x2adc:
             return 0x2add;
+        case 0x304c:
+            return 0x304b;
+        case 0x304e:
+            return 0x304d;
+        case 0x3050:
+            return 0x304f;
+        case 0x3052:
+            return 0x3051;
+        case 0x3054:
+            return 0x3053;
+        case 0x3056:
+            return 0x3055;
+        case 0x3058:
+            return 0x3057;
+        case 0x305a:
+            return 0x3059;
+        case 0x305c:
+            return 0x305b;
+        case 0x305e:
+            return 0x305d;
+        case 0x3060:
+            return 0x305f;
+        case 0x3062:
+            return 0x3061;
+        case 0x3065:
+            return 0x3064;
+        case 0x3067:
+            return 0x3066;
+        case 0x3069:
+            return 0x3068;
+        case 0x3070:
+            return 0x306f;
+        case 0x3071:
+            return 0x306f;
+        case 0x3073:
+            return 0x3072;
+        case 0x3074:
+            return 0x3072;
+        case 0x3076:
+            return 0x3075;
+        case 0x3077:
+            return 0x3075;
+        case 0x3079:
+            return 0x3078;
+        case 0x307a:
+            return 0x3078;
+        case 0x307c:
+            return 0x307b;
+        case 0x307d:
+            return 0x307b;
+        case 0x3094:
+            return 0x3046;
+        case 0x309e:
+            return 0x309d;
+        case 0x30ac:
+            return 0x30ab;
+        case 0x30ae:
+            return 0x30ad;
+        case 0x30b0:
+            return 0x30af;
+        case 0x30b2:
+            return 0x30b1;
+        case 0x30b4:
+            return 0x30b3;
+        case 0x30b6:
+            return 0x30b5;
+        case 0x30b8:
+            return 0x30b7;
+        case 0x30ba:
+            return 0x30b9;
+        case 0x30bc:
+            return 0x30bb;
+        case 0x30be:
+            return 0x30bd;
+        case 0x30c0:
+            return 0x30bf;
+        case 0x30c2:
+            return 0x30c1;
+        case 0x30c5:
+            return 0x30c4;
+        case 0x30c7:
+            return 0x30c6;
+        case 0x30c9:
+            return 0x30c8;
+        case 0x30d0:
+            return 0x30cf;
+        case 0x30d1:
+            return 0x30cf;
+        case 0x30d3:
+            return 0x30d2;
+        case 0x30d4:
+            return 0x30d2;
+        case 0x30d6:
+            return 0x30d5;
+        case 0x30d7:
+            return 0x30d5;
+        case 0x30d9:
+            return 0x30d8;
+        case 0x30da:
+            return 0x30d8;
+        case 0x30dc:
+            return 0x30db;
+        case 0x30dd:
+            return 0x30db;
+        case 0x30f4:
+            return 0x30a6;
+        case 0x30f7:
+            return 0x30ef;
+        case 0x30f8:
+            return 0x30f0;
+        case 0x30f9:
+            return 0x30f1;
+        case 0x30fa:
+            return 0x30f2;
+        case 0x30fe:
+            return 0x30fd;
         case 0xf900:
             return 0x8c48;
         case 0xf901:
@@ -2665,6 +2801,80 @@ char32_t codepointRemoveDiacritics(char32_t codepoint) {
             return 0x9f43;
         case 0xfad9:
             return 0x9f8e;
+        case 0xfb1d:
+            return 0x5d9;
+        case 0xfb1f:
+            return 0x5f2;
+        case 0xfb2a:
+            return 0x5e9;
+        case 0xfb2b:
+            return 0x5e9;
+        case 0xfb2c:
+            return 0x5e9;
+        case 0xfb2d:
+            return 0x5e9;
+        case 0xfb2e:
+            return 0x5d0;
+        case 0xfb2f:
+            return 0x5d0;
+        case 0xfb30:
+            return 0x5d0;
+        case 0xfb31:
+            return 0x5d1;
+        case 0xfb32:
+            return 0x5d2;
+        case 0xfb33:
+            return 0x5d3;
+        case 0xfb34:
+            return 0x5d4;
+        case 0xfb35:
+            return 0x5d5;
+        case 0xfb36:
+            return 0x5d6;
+        case 0xfb38:
+            return 0x5d8;
+        case 0xfb39:
+            return 0x5d9;
+        case 0xfb3a:
+            return 0x5da;
+        case 0xfb3b:
+            return 0x5db;
+        case 0xfb3c:
+            return 0x5dc;
+        case 0xfb3e:
+            return 0x5de;
+        case 0xfb40:
+            return 0x5e0;
+        case 0xfb41:
+            return 0x5e1;
+        case 0xfb43:
+            return 0x5e3;
+        case 0xfb44:
+            return 0x5e4;
+        case 0xfb46:
+            return 0x5e6;
+        case 0xfb47:
+            return 0x5e7;
+        case 0xfb48:
+            return 0x5e8;
+        case 0xfb49:
+            return 0x5e9;
+        case 0xfb4a:
+            return 0x5ea;
+        case 0xfb4b:
+            return 0x5d5;
+        case 0xfb4c:
+            return 0x5d1;
+        case 0xfb4d:
+            return 0x5db;
+        case 0xfb4e:
+            return 0x5e4;
+        case 0x1109a:
+            return 0x11099;
+        case 0x1109c:
+            return 0x1109b;
+        case 0x110ab:
+            return 0x110a5;
         case 0x2f800:
             return 0x4e3d;
         case 0x2f801:

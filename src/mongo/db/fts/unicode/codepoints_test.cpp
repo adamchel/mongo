@@ -32,13 +32,13 @@
 namespace mongo {
 namespace unicode {
 
-TEST(UnicodeCodepoints, CombiningDiacriticalMarks) {
-    const char32_t marks[] = {0x0301, 0x0339, 0x1ACD, 0x1DD5, 0x20E7};
+TEST(UnicodeCodepoints, Diacritics) {
+    const char32_t marks[] = {0x0301, 0x0339, 0x1AB4, 0x1DC5, 0xA69D};
     const char32_t not_marks[] = {U'-', U'.', U'\'', U'*', U'm'};
 
     for (auto i = 0; i < 5; ++i) {
-        ASSERT(codepointIsCombiningDiacriticalMark(marks[i]));
-        ASSERT_FALSE(codepointIsCombiningDiacriticalMark(not_marks[i]));
+        ASSERT(codepointIsDiacritic(marks[i]));
+        ASSERT_FALSE(codepointIsDiacritic(not_marks[i]));
     }
 }
 

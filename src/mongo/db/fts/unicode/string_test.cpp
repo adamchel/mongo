@@ -45,10 +45,10 @@ namespace mongo {
 namespace unicode {
 
 TEST(UnicodeString, RemoveDiacritics) {
-    // NFC Normalized Text
+    // NFC Normalized Text.
     String test1 = String(UTF8("¿CUÁNTOS AÑOS TIENES TÚ?"));
 
-    // NFD Normalized Text ("Café")
+    // NFD Normalized Text ("Café").
     const char test2[] = {'C', 'a', 'f', 'e', static_cast<char>(0xcc), static_cast<char>(0x81), 0};
 
     ASSERT_EQUALS(UTF8("¿CUANTOS ANOS TIENES TU?"), test1.removeDiacritics().toString());
@@ -72,11 +72,11 @@ TEST(UnicodeString, CaseFoldingTurkish) {
 }
 
 TEST(UnicodeString, CaseFoldingAndRemoveDiacritics) {
-    // NFC Normalized Text
+    // NFC Normalized Text.
     String test1 = String(UTF8("Πόσο χρονών είσαι?"));
     String test2 = String(UTF8("¿CUÁNTOS AÑOS TIENES TÚ?"));
 
-    // NFD Normalized Text ("CAFÉ")
+    // NFD Normalized Text ("CAFÉ").
     const char test3[] = {'C', 'A', 'F', 'E', static_cast<char>(0xcc), static_cast<char>(0x81), 0};
 
     ASSERT_EQUALS(UTF8("ποσο χρονων εισαι?"), test1.toLower().removeDiacritics().toString());
@@ -87,19 +87,19 @@ TEST(UnicodeString, CaseFoldingAndRemoveDiacritics) {
 TEST(UnicodeString, SubstringMatch) {
     String str = String(UTF8("Одумайся! Престол свой сохрани; И ярость укроти."));
 
-    // Case insensitive & diacritic insensitive
+    // Case insensitive & diacritic insensitive.
     ASSERT(String::substrMatch(str, String(UTF8("престол свои")), String::kNone));
     ASSERT_FALSE(String::substrMatch(str, String(UTF8("Престол сохрани")), String::kNone));
 
-    // Case sensitive & diacritic insensitive
+    // Case sensitive & diacritic insensitive.
     ASSERT(String::substrMatch(str, String(UTF8("Одумаися!")), String::kCaseSensitive));
     ASSERT_FALSE(String::substrMatch(str, String(UTF8("одумайся!")), String::kCaseSensitive));
 
-    // Case insensitive & diacritic sensitive
+    // Case insensitive & diacritic sensitive.
     ASSERT(String::substrMatch(str, String(UTF8("одумайся!")), String::kDiacriticSensitive));
     ASSERT_FALSE(String::substrMatch(str, String(UTF8("Одумаися!")), String::kDiacriticSensitive));
 
-    // Case sensitive & diacritic sensitive
+    // Case sensitive & diacritic sensitive.
     ASSERT(String::substrMatch(
         str, String(UTF8("Одумайся!")), String::kDiacriticSensitive | String::kCaseSensitive));
     ASSERT_FALSE(String::substrMatch(
@@ -109,13 +109,13 @@ TEST(UnicodeString, SubstringMatch) {
 TEST(UnicodeString, SubstringMatchTurkish) {
     String str = String(UTF8("KAÇ YAŞINDASINIZ?"));
 
-    // Case insensitive & diacritic insensitive
+    // Case insensitive & diacritic insensitive.
     ASSERT(String::substrMatch(
         str, String(UTF8("yasındasınız")), String::kNone, CaseFoldMode::kTurkish));
     ASSERT_FALSE(String::substrMatch(
         str, String(UTF8("yasindasiniz")), String::kNone, CaseFoldMode::kTurkish));
 
-    // Case insensitive & diacritic sensitive
+    // Case insensitive & diacritic sensitive.
     ASSERT(String::substrMatch(
         str, String(UTF8("yaşındasınız")), String::kDiacriticSensitive, CaseFoldMode::kTurkish));
     ASSERT_FALSE(String::substrMatch(
@@ -123,10 +123,10 @@ TEST(UnicodeString, SubstringMatchTurkish) {
 }
 
 TEST(UnicodeString, BadUTF8) {
-    // Overlong
+    // Overlong.
     const char invalid1[] = {static_cast<char>(0xc0), static_cast<char>(0xaf), 0};
 
-    // Invalid code positions
+    // Invalid code positions.
     const char invalid2[] = {
         static_cast<char>(0xed), static_cast<char>(0xa0), static_cast<char>(0x80), 0};
 

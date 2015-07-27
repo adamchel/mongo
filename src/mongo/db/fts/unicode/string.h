@@ -46,14 +46,15 @@ class String {
 public:
     String() = default;
 
-    String(const String& other) = delete;
+#if defined(_MSC_VER) && _MSC_VER < 1900
+    String(String&& other)
+        : _data{std::move(other._data)} {}
 
-    String& operator=(const String&) = delete;
-
-    /**
-     * Move constructor to avoid excessive copying of underlying string data.
-     */
-    String(String&& src);
+    String& operator=(String&& other) {
+        _data = std::move(other._data);
+        return *this;
+    }
+#endif
 
     /**
      * Construct a String with UTF-8 source data (supports standard C++ string literals, and
