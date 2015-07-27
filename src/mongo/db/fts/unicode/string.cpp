@@ -78,9 +78,8 @@ std::string String::toString() const {
     // output is the target, resize it so that it's guaranteed to fit all of the input characters,
     // plus a null character if there isn't one.
     std::string output(_data.size() * 4 + 1, '\0');
-    size_t resultSize = copyString32to8(reinterpret_cast<unsigned char*>(&output[0]),
-                                        &_data[0],
-                                        output.size());
+    size_t resultSize =
+        copyString32to8(reinterpret_cast<unsigned char*>(&output[0]), &_data[0], output.size());
 
     // Resize output so it is only as large as what it contains.
     output.resize(resultSize);

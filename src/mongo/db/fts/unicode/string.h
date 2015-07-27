@@ -47,8 +47,7 @@ public:
     String() = default;
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
-    String(String&& other)
-        : _data(std::move(other._data)) {}
+    String(String&& other) : _data(std::move(other._data)) {}
 
     String& operator=(String&& other) {
         _data = std::move(other._data);
