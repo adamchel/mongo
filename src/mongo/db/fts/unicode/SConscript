@@ -32,6 +32,7 @@ env.Command(
 env.Library(
     target='unicode', 
 	source=[
+        '$BUILD_DIR/mongo/shell/linenoise_utf8.cpp',
         'codepoints_casefold.cpp',
         'codepoints_delimiter_list.cpp',
         'codepoints_diacritic_list.cpp',
