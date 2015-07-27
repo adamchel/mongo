@@ -42,7 +42,7 @@ TEST(UnicodeCodepoints, Diacritics) {
     const char32_t marks[] = {0x0301, 0x0339, 0x1AB4, 0x1DC5, 0xA69D};
 
     // const char32_t not_marks[] = {U'-', U'.', U'\'', U'*', U'm'};
-    const char32_t not_marks[] = {0x2D, 0x2E, 0x5C, 0x2A, 0x6D};
+    const char32_t not_marks[] = {0x2D, 0x2E, 0x27, 0x2A, 0x6D};
 
     for (auto i = 0; i < 5; ++i) {
         ASSERT(codepointIsDiacritic(marks[i]));
@@ -64,8 +64,8 @@ TEST(UnicodeCodepoints, Delimiters) {
     }
 
     // Special case for English.
-    ASSERT(codepointIsDelimiter(U'\'', DelimiterListLanguage::kNotEnglish));
-    ASSERT_FALSE(codepointIsDelimiter(U'\'', DelimiterListLanguage::kEnglish));
+    ASSERT(codepointIsDelimiter(0x27, DelimiterListLanguage::kNotEnglish));
+    ASSERT_FALSE(codepointIsDelimiter(0x27, DelimiterListLanguage::kEnglish));
 }
 
 TEST(UnicodeCodepoints, RemoveDiacritics) {
