@@ -279,7 +279,6 @@ if not has_option('noshell') and (usev8 or usemozjs):
     shell_core_env = env.Clone()
     if has_option("safeshell"):
         shell_core_env.Append(CPPDEFINES=["MONGO_SAFE_SHELL"])
-
     shell_core_env.Library("shell_core",
                 source=[
                     "shell/bench.cpp",
