@@ -57,7 +57,10 @@ String::String(const StringData utf8_src) {
     int result = 0;
     size_t resultSize = 0;
 
-    copyString8to32(reinterpret_cast<unsigned int*>(&_data[0]),
+    // Although utf8_src.rawData() is not guaranteed to be null-terminated, copyString8to32 won't
+    // access bad memory because it is limited by the size of its output buffer, which is set to the
+    // size of utf8_src.
+    copyString8to32(&_data[0],
                     reinterpret_cast<const unsigned char*>(&utf8_src.rawData()[0]),
                     _data.size(),
                     resultSize,
@@ -76,7 +79,7 @@ std::string String::toString() const {
     // plus a null character if there isn't one.
     std::string output(_data.size() * 4 + 1, '\0');
     size_t resultSize = copyString32to8(reinterpret_cast<unsigned char*>(&output[0]),
-                                        reinterpret_cast<const unsigned int*>(&_data[0]),
+                                        &_data[0],
                                         output.size());
 
     // Resize output so it is only as large as what it contains.
