@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "mongo/base/disallow_copying.h"
 #include "mongo/base/string_data.h"
 
