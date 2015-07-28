@@ -125,9 +125,17 @@ bool String::substrMatch(const String& str,
                          const String& find,
                          SubstrMatchOptions options,
                          CaseFoldMode cfMode) {
+    // In Turkish, lowercasing needs to be applied first because the letter İ has a different case
+    // folding mapping than the letter I, but removing diacritics removes the dot from İ.
+    if (cfMode == CaseFoldMode::kTurkish) {
+        String cleanStr = str.toLower(cfMode);
+        String cleanFind = find.toLower(cfMode);
+        return substrMatch(cleanStr, cleanFind, options | kCaseSensitive, CaseFoldMode::kNormal);
+    }
+
     if (options & kDiacriticSensitive) {
         if (options & kCaseSensitive) {
-            // Case sensitive and diacritic sensitive
+            // Case sensitive and diacritic sensitive.
             return std::search(str._data.cbegin(),
                                str._data.cend(),
                                find._data.cbegin(),
@@ -135,7 +143,7 @@ bool String::substrMatch(const String& str,
                                [&](char32_t c1, char32_t c2) { return (c1 == c2); }) !=
                 str._data.cend();
         }
-        // Case insensitive and diacritic sensitive
+        // Case insensitive and diacritic sensitive.
         return std::search(str._data.cbegin(),
                            str._data.cend(),
                            find._data.cbegin(),
