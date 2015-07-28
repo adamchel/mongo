@@ -159,10 +159,8 @@ void FTSQuery::_addTerms(FTSTokenizer* tokenizer, const string& sentence, bool n
         return;
     }
 
-    tokenizer->reset(
-        sentence.c_str(),
-        static_cast<FTSTokenizer::FTSTokenizerOptions>(FTSTokenizer::kFilterStopWords |
-                                                       FTSTokenizer::kGenerateCaseSensitiveTokens));
+    tokenizer->reset(sentence.c_str(),
+                     FTSTokenizer::kFilterStopWords | FTSTokenizer::kGenerateCaseSensitiveTokens);
 
     // If we want case-sensitivity, get the case-sensitive token
     while (tokenizer->moveNext()) {

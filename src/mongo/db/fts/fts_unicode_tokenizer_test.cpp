@@ -36,19 +36,13 @@ namespace fts {
 
 std::vector<std::string> tokenizeString(const char* str,
                                         const char* language,
-                                        bool filterStopWords) {
+                                        FTSTokenizer::FTSTokenizerOptions options) {
     // TODO: in next patch set, make this with text index version 3, and get the tokenizer directly
     // from the FTSLanguage.
     StatusWithFTSLanguage swl = FTSLanguage::make(language, TEXT_INDEX_VERSION_2);
     ASSERT_OK(swl);
 
     UnicodeFTSTokenizer tokenizer(swl.getValue());
-
-    FTSTokenizer::FTSTokenizerOptions options = FTSTokenizer::kNone;
-
-    if (filterStopWords) {
-        options |= FTSTokenizer::kFilterStopWords;
-    }
 
     tokenizer.reset(str, options);
 
@@ -63,7 +57,8 @@ std::vector<std::string> tokenizeString(const char* str,
 
 // Ensure punctuation is filtered out of the indexed document and the 's is not separated
 TEST(FtsUnicodeTokenizer, English) {
-    std::vector<std::string> terms = tokenizeString("Do you see Mark's dog running?", "english", false);
+    std::vector<std::string> terms =
+        tokenizeString("Do you see Mark's dog running?", "english", FTSTokenizer::kNone);
 
     ASSERT_EQUALS(6U, terms.size());
     ASSERT_EQUALS("do", terms[0]);
@@ -76,8 +71,8 @@ TEST(FtsUnicodeTokenizer, English) {
 
 // Ensure punctuation is filtered out of the indexed document and the 'est is separated.
 TEST(FtsUnicodeTokenizer, French) {
-    std::vector<std::string> terms =
-        tokenizeString("Voyez-vous «le chien» de Mark courante? C'est bien!", "french", false);
+    std::vector<std::string> terms = tokenizeString(
+        "Voyez-vous «le chien» de Mark courante? C'est bien!", "french", FTSTokenizer::kNone);
 
     ASSERT_EQUALS(10U, terms.size());
     ASSERT_EQUALS("voi", terms[0]);
@@ -92,11 +87,11 @@ TEST(FtsUnicodeTokenizer, French) {
     ASSERT_EQUALS("bien", terms[9]);
 }
 
-// Ensure punctuation is filtered out of the indexed document and that diacritics aren't in the
+// Ensure punctuation is filtered out of the indexed document and that diacritics are not in the
 // resulting tokens.
 TEST(FtsUnicodeTokenizer, Turkish) {
-    std::vector<std::string> terms =
-        tokenizeString("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?", "turkish", false);
+    std::vector<std::string> terms = tokenizeString(
+        "KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?", "turkish", FTSTokenizer::kNone);
 
     ASSERT_EQUALS(7U, terms.size());
     ASSERT_EQUALS("kac", terms[0]);
@@ -108,17 +103,105 @@ TEST(FtsUnicodeTokenizer, Turkish) {
     ASSERT_EQUALS("var", terms[6]);
 }
 
+// Ensure punctuation is filtered out of the indexed document, that diacritics are not in the
+// resulting tokens, and that the generated tokens are not lowercased.
+TEST(FtsUnicodeTokenizer, TurkishCaseSensitive) {
+    std::vector<std::string> terms = tokenizeString("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?",
+                                                    "turkish",
+                                                    FTSTokenizer::kGenerateCaseSensitiveTokens);
+
+    ASSERT_EQUALS(7U, terms.size());
+    ASSERT_EQUALS("KAC", terms[0]);
+    ASSERT_EQUALS("YASINDASIN", terms[1]);
+    ASSERT_EQUALS("SEN", terms[2]);
+    ASSERT_EQUALS("VE", terms[3]);
+    ASSERT_EQUALS("SEN", terms[4]);
+    ASSERT_EQUALS("NEREDEN", terms[5]);
+    ASSERT_EQUALS("VARDIR", terms[6]);
+}
+
+// Ensure punctuation is filtered out of the indexed document, that diacritics are in the
+// resulting tokens, and that the generated tokens are lowercased.
+TEST(FtsUnicodeTokenizer, TurkishDiacriticSensitive) {
+    std::vector<std::string> terms =
+        tokenizeString("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?",
+                       "turkish",
+                       FTSTokenizer::kGenerateDiacriticSensitiveTokens);
+
+    ASSERT_EQUALS(7U, terms.size());
+    ASSERT_EQUALS("kaç", terms[0]);
+    ASSERT_EQUALS("yaş", terms[1]);
+    ASSERT_EQUALS("sen", terms[2]);
+    ASSERT_EQUALS("ve", terms[3]);
+    ASSERT_EQUALS("sen", terms[4]);
+    ASSERT_EQUALS("nere", terms[5]);
+    ASSERT_EQUALS("var", terms[6]);
+}
+
+// Ensure punctuation is filtered out of the indexed document, that diacritics are in the
+// resulting tokens, and that the generated tokens are not lowercased.
+TEST(FtsUnicodeTokenizer, TurkishDiacriticAndCaseSensitive) {
+    std::vector<std::string> terms =
+        tokenizeString("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?",
+                       "turkish",
+                       FTSTokenizer::kGenerateDiacriticSensitiveTokens |
+                           FTSTokenizer::kGenerateCaseSensitiveTokens);
+
+    ASSERT_EQUALS(7U, terms.size());
+    ASSERT_EQUALS("KAÇ", terms[0]);
+    ASSERT_EQUALS("YAŞINDASIN", terms[1]);
+    ASSERT_EQUALS("SEN", terms[2]);
+    ASSERT_EQUALS("VE", terms[3]);
+    ASSERT_EQUALS("SEN", terms[4]);
+    ASSERT_EQUALS("NEREDEN", terms[5]);
+    ASSERT_EQUALS("VARDIR", terms[6]);
+}
+
+// Ensure punctuation is filtered out of the indexed document, that diacritics are in the
+// resulting tokens, and that the generated tokens are not lowercased.
+TEST(FtsUnicodeTokenizer, TurkishDiacriticAndCaseSensitiveAndStopWords) {
+    std::vector<std::string> terms = tokenizeString(
+        "KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?",
+        "turkish",
+        FTSTokenizer::kGenerateDiacriticSensitiveTokens |
+            FTSTokenizer::kGenerateCaseSensitiveTokens | FTSTokenizer::kFilterStopWords);
+
+    ASSERT_EQUALS(4U, terms.size());
+    ASSERT_EQUALS("KAÇ", terms[0]);
+    ASSERT_EQUALS("YAŞINDASIN", terms[1]);
+    ASSERT_EQUALS("NEREDEN", terms[2]);
+    ASSERT_EQUALS("VARDIR", terms[3]);
+}
+
+
 // Ensure that stop words are only removed if they contain the correct diacritics.
 TEST(FtsUnicodeTokenizer, FrenchStopWords) {
     std::vector<std::string> terms =
-        tokenizeString("Je ne vais pas etre heureux. Je vais être heureux.", "french", true);
+        tokenizeString("Je ne vais pas etre énervé. Je vais être excité.",
+                       "french",
+                       FTSTokenizer::kFilterStopWords);
 
     ASSERT_EQUALS(5U, terms.size());
     ASSERT_EQUALS("vais", terms[0]);
     ASSERT_EQUALS("etre", terms[1]);
-    ASSERT_EQUALS("heureux", terms[2]);
+    ASSERT_EQUALS("enerv", terms[2]);
     ASSERT_EQUALS("vais", terms[3]);
-    ASSERT_EQUALS("heureux", terms[4]);
+    ASSERT_EQUALS("excit", terms[4]);
+}
+
+// Ensure that stop words are only removed if they contain the correct diacritics.
+TEST(FtsUnicodeTokenizer, FrenchStopWordsAndDiacriticSensitive) {
+    std::vector<std::string> terms = tokenizeString(
+        "Je ne vais pas etre énervé. Je vais être excité.",
+        "french",
+        FTSTokenizer::kFilterStopWords | FTSTokenizer::kGenerateDiacriticSensitiveTokens);
+
+    ASSERT_EQUALS(5U, terms.size());
+    ASSERT_EQUALS("vais", terms[0]);
+    ASSERT_EQUALS("etre", terms[1]);
+    ASSERT_EQUALS("énerv", terms[2]);
+    ASSERT_EQUALS("vais", terms[3]);
+    ASSERT_EQUALS("excit", terms[4]);
 }
 
 }  // namespace fts

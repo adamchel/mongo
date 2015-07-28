@@ -92,7 +92,7 @@ bool UnicodeFTSTokenizer::moveNext() {
         }
 
         if (_options & kGenerateCaseSensitiveTokens) {
-            word = token.toLower(_caseFoldMode);
+            word = token;
         }
 
         if (!(_options & kGenerateDiacriticSensitiveTokens)) {
