@@ -133,7 +133,7 @@ Status FTSQuery::parse(const string& query,
 }
 
 void FTSQuery::_addTerms(FTSTokenizer* tokenizer, const string& sentence, bool negated) {
-    tokenizer->reset(sentence.c_str(), FTSTokenizer::FilterStopWords);
+    tokenizer->reset(sentence.c_str(), FTSTokenizer::kFilterStopWords);
 
     auto& activeTerms = negated ? _negatedTerms : _positiveTerms;
 
@@ -159,9 +159,10 @@ void FTSQuery::_addTerms(FTSTokenizer* tokenizer, const string& sentence, bool n
         return;
     }
 
-    tokenizer->reset(sentence.c_str(),
-                     static_cast<FTSTokenizer::Options>(FTSTokenizer::FilterStopWords |
-                                                        FTSTokenizer::GenerateCaseSensitiveTokens));
+    tokenizer->reset(
+        sentence.c_str(),
+        static_cast<FTSTokenizer::FTSTokenizerOptions>(FTSTokenizer::kFilterStopWords |
+                                                       FTSTokenizer::kGenerateCaseSensitiveTokens));
 
     // If we want case-sensitivity, get the case-sensitive token
     while (tokenizer->moveNext()) {

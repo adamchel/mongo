@@ -59,12 +59,10 @@ UnicodeFTSTokenizer::UnicodeFTSTokenizer(const FTSLanguage* language)
     }
 }
 
-void UnicodeFTSTokenizer::reset(StringData document, Options options) {
+void UnicodeFTSTokenizer::reset(StringData document, FTSTokenizerOptions options) {
     _options = options;
     _pos = 0;
     _document = unicode::String(document);
-
-    // bool removeDiacritics = _options & FTSTokenizer::RemoveDiacritics;
 
     _skipDelimiters();
 }
@@ -85,18 +83,20 @@ bool UnicodeFTSTokenizer::moveNext() {
         unicode::String token = _document.substr(start, _pos - start);
         _skipDelimiters();
 
-        unicode::String word = token.removeDiacritics().toLower(_caseFoldMode);
+        unicode::String word = token.toLower(_caseFoldMode);
 
-        // TODO for stop word checking we may need to not remove diacritics.
-        //
-        // Stop words are case-sensitive so we need them to be lower cased to check
-        // against the stop word list
-        if ((_options & FTSTokenizer::FilterStopWords) && _stopWords->isStopWord(word.toString())) {
+        // Stop words are case-sensitive and diacritic sensitive, so we need them to be lower cased
+        // but with diacritics not removed to check against the stop word list.
+        if ((_options & kFilterStopWords) && _stopWords->isStopWord(word.toString())) {
             continue;
         }
 
-        if (_options & FTSTokenizer::GenerateCaseSensitiveTokens) {
-            word = token.removeDiacritics();
+        if (_options & kGenerateCaseSensitiveTokens) {
+            word = token.toLower(_caseFoldMode);
+        }
+
+        if (!(_options & kGenerateDiacriticSensitiveTokens)) {
+            word = word.removeDiacritics();
         }
 
         _stem = _stemmer.stem(word.toString());
@@ -110,7 +110,8 @@ StringData UnicodeFTSTokenizer::get() const {
 
 bool UnicodeFTSTokenizer::_skipDelimiters() {
     size_t start = _pos;
-    while (_pos < _document.size() && unicode::codepointIsDelimiter(_document[_pos], _delimListLanguage)) {
+    while (_pos < _document.size() &&
+           unicode::codepointIsDelimiter(_document[_pos], _delimListLanguage)) {
         ++_pos;
     }
     return _pos > start;

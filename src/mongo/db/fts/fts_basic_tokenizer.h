@@ -59,7 +59,7 @@ class BasicFTSTokenizer : public FTSTokenizer {
 public:
     BasicFTSTokenizer(const FTSLanguage* language);
 
-    void reset(StringData document, Options options) final;
+    void reset(StringData document, FTSTokenizerOptions options) final;
 
     bool moveNext() final;
 
@@ -72,7 +72,7 @@ private:
 
     std::string _document;
     std::unique_ptr<Tokenizer> _tokenizer;
-    Options _options;
+    FTSTokenizerOptions _options;
 
     std::string _stem;
 };

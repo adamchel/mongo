@@ -84,6 +84,9 @@ env.CppUnitTest( "fts_basic_tokenizer_test", "fts_basic_tokenizer_test.cpp",
 env.CppUnitTest( "fts_tokenizer_test", "tokenizer_test.cpp",
                  LIBDEPS=["base"] )
 
+env.CppUnitTest( "fts_unicode_tokenizer_test", "fts_unicode_tokenizer_test.cpp",
+                 LIBDEPS=["base"] )
+
 env.CppUnitTest( "fts_query_test", "fts_query_test.cpp",
                  LIBDEPS=["base"] )
 

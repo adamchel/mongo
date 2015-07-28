@@ -60,7 +60,7 @@ class UnicodeFTSTokenizer : public FTSTokenizer {
 public:
     UnicodeFTSTokenizer(const FTSLanguage* language);
 
-    void reset(StringData document, Options options) final;
+    void reset(StringData document, FTSTokenizerOptions options) final;
 
     bool moveNext() final;
 
@@ -83,7 +83,7 @@ private:
     unicode::String _document;
     size_t _pos;
 
-    Options _options;
+    FTSTokenizerOptions _options;
 
     std::string _stem;
 };

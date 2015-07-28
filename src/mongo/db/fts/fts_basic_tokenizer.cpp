@@ -47,7 +47,7 @@ using std::string;
 BasicFTSTokenizer::BasicFTSTokenizer(const FTSLanguage* language)
     : _language(language), _stemmer(language), _stopWords(StopWords::getStopWords(language)) {}
 
-void BasicFTSTokenizer::reset(StringData document, Options options) {
+void BasicFTSTokenizer::reset(StringData document, FTSTokenizerOptions options) {
     _options = options;
     _document = document.toString();
     _tokenizer = stdx::make_unique<Tokenizer>(_language, _document);
@@ -74,11 +74,11 @@ bool BasicFTSTokenizer::moveNext() {
 
         // Stop words are case-sensitive so we need them to be lower cased to check
         // against the stop word list
-        if ((_options & FTSTokenizer::FilterStopWords) && _stopWords->isStopWord(word)) {
+        if ((_options & FTSTokenizer::kFilterStopWords) && _stopWords->isStopWord(word)) {
             continue;
         }
 
-        if (_options & FTSTokenizer::GenerateCaseSensitiveTokens) {
+        if (_options & FTSTokenizer::kGenerateCaseSensitiveTokens) {
             word = token.data.toString();
         }
 
