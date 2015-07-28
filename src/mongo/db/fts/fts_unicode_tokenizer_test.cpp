@@ -1,4 +1,4 @@
-/**
+﻿/**
  *    Copyright (C) 2015 MongoDB Inc.
  *
  *    This program is free software: you can redistribute it and/or  modify
@@ -30,6 +30,17 @@
 #include "mongo/db/fts/fts_tokenizer.h"
 #include "mongo/db/fts/fts_unicode_tokenizer.h"
 #include "mongo/unittest/unittest.h"
+
+#ifdef MSC_VER
+// Microsoft VS 2013 does not handle UTF-8 strings in char literal strings, error C4566
+// The Microsoft compiler can be tricked into using UTF-8 strings as follows:
+// 1. The file has a UTF-8 BOM
+// 2. The string literal is a wide character string literal (ie, prefixed with L)
+// at this point.
+#define UTF8(x) toUtf8String(L##x)
+#else
+#define UTF8(x) x
+#endif
 
 namespace mongo {
 namespace fts {
@@ -72,7 +83,7 @@ TEST(FtsUnicodeTokenizer, English) {
 // Ensure punctuation is filtered out of the indexed document and the 'est is separated.
 TEST(FtsUnicodeTokenizer, French) {
     std::vector<std::string> terms = tokenizeString(
-        "Voyez-vous «le chien» de Mark courante? C'est bien!", "french", FTSTokenizer::kNone);
+        UTF8("Voyez-vous «le chien» de Mark courante? C'est bien!"), "french", FTSTokenizer::kNone);
 
     ASSERT_EQUALS(10U, terms.size());
     ASSERT_EQUALS("voi", terms[0]);
@@ -91,7 +102,7 @@ TEST(FtsUnicodeTokenizer, French) {
 // resulting tokens.
 TEST(FtsUnicodeTokenizer, Turkish) {
     std::vector<std::string> terms = tokenizeString(
-        "KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?", "turkish", FTSTokenizer::kNone);
+        UTF8("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?"), "turkish", FTSTokenizer::kNone);
 
     ASSERT_EQUALS(7U, terms.size());
     ASSERT_EQUALS("kac", terms[0]);
@@ -106,7 +117,7 @@ TEST(FtsUnicodeTokenizer, Turkish) {
 // Ensure punctuation is filtered out of the indexed document, that diacritics are not in the
 // resulting tokens, and that the generated tokens are not lowercased.
 TEST(FtsUnicodeTokenizer, TurkishCaseSensitive) {
-    std::vector<std::string> terms = tokenizeString("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?",
+    std::vector<std::string> terms = tokenizeString(UTF8("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?"),
                                                     "turkish",
                                                     FTSTokenizer::kGenerateCaseSensitiveTokens);
 
@@ -124,13 +135,13 @@ TEST(FtsUnicodeTokenizer, TurkishCaseSensitive) {
 // resulting tokens, and that the generated tokens are lowercased.
 TEST(FtsUnicodeTokenizer, TurkishDiacriticSensitive) {
     std::vector<std::string> terms =
-        tokenizeString("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?",
+        tokenizeString(UTF8("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?"),
                        "turkish",
                        FTSTokenizer::kGenerateDiacriticSensitiveTokens);
 
     ASSERT_EQUALS(7U, terms.size());
-    ASSERT_EQUALS("kaç", terms[0]);
-    ASSERT_EQUALS("yaş", terms[1]);
+    ASSERT_EQUALS(UTF8("kaç"), terms[0]);
+    ASSERT_EQUALS(UTF8("yaş"), terms[1]);
     ASSERT_EQUALS("sen", terms[2]);
     ASSERT_EQUALS("ve", terms[3]);
     ASSERT_EQUALS("sen", terms[4]);
@@ -142,14 +153,14 @@ TEST(FtsUnicodeTokenizer, TurkishDiacriticSensitive) {
 // resulting tokens, and that the generated tokens are not lowercased.
 TEST(FtsUnicodeTokenizer, TurkishDiacriticAndCaseSensitive) {
     std::vector<std::string> terms =
-        tokenizeString("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?",
+        tokenizeString(UTF8("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?"),
                        "turkish",
                        FTSTokenizer::kGenerateDiacriticSensitiveTokens |
                            FTSTokenizer::kGenerateCaseSensitiveTokens);
 
     ASSERT_EQUALS(7U, terms.size());
-    ASSERT_EQUALS("KAÇ", terms[0]);
-    ASSERT_EQUALS("YAŞINDASIN", terms[1]);
+    ASSERT_EQUALS(UTF8("KAÇ"), terms[0]);
+    ASSERT_EQUALS(UTF8("YAŞINDASIN"), terms[1]);
     ASSERT_EQUALS("SEN", terms[2]);
     ASSERT_EQUALS("VE", terms[3]);
     ASSERT_EQUALS("SEN", terms[4]);
@@ -161,14 +172,14 @@ TEST(FtsUnicodeTokenizer, TurkishDiacriticAndCaseSensitive) {
 // resulting tokens, and that the generated tokens are not lowercased.
 TEST(FtsUnicodeTokenizer, TurkishDiacriticAndCaseSensitiveAndStopWords) {
     std::vector<std::string> terms = tokenizeString(
-        "KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?",
+        UTF8("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?"),
         "turkish",
         FTSTokenizer::kGenerateDiacriticSensitiveTokens |
             FTSTokenizer::kGenerateCaseSensitiveTokens | FTSTokenizer::kFilterStopWords);
 
     ASSERT_EQUALS(4U, terms.size());
-    ASSERT_EQUALS("KAÇ", terms[0]);
-    ASSERT_EQUALS("YAŞINDASIN", terms[1]);
+    ASSERT_EQUALS(UTF8("KAÇ"), terms[0]);
+    ASSERT_EQUALS(UTF8("YAŞINDASIN"), terms[1]);
     ASSERT_EQUALS("NEREDEN", terms[2]);
     ASSERT_EQUALS("VARDIR", terms[3]);
 }
@@ -177,7 +188,7 @@ TEST(FtsUnicodeTokenizer, TurkishDiacriticAndCaseSensitiveAndStopWords) {
 // Ensure that stop words are only removed if they contain the correct diacritics.
 TEST(FtsUnicodeTokenizer, FrenchStopWords) {
     std::vector<std::string> terms =
-        tokenizeString("Je ne vais pas etre énervé. Je vais être excité.",
+        tokenizeString(UTF8("Je ne vais pas etre énervé. Je vais être excité."),
                        "french",
                        FTSTokenizer::kFilterStopWords);
 
@@ -192,14 +203,14 @@ TEST(FtsUnicodeTokenizer, FrenchStopWords) {
 // Ensure that stop words are only removed if they contain the correct diacritics.
 TEST(FtsUnicodeTokenizer, FrenchStopWordsAndDiacriticSensitive) {
     std::vector<std::string> terms = tokenizeString(
-        "Je ne vais pas etre énervé. Je vais être excité.",
+        UTF8("Je ne vais pas etre énervé. Je vais être excité."),
         "french",
         FTSTokenizer::kFilterStopWords | FTSTokenizer::kGenerateDiacriticSensitiveTokens);
 
     ASSERT_EQUALS(5U, terms.size());
     ASSERT_EQUALS("vais", terms[0]);
     ASSERT_EQUALS("etre", terms[1]);
-    ASSERT_EQUALS("énerv", terms[2]);
+    ASSERT_EQUALS(UTF8("énerv"), terms[2]);
     ASSERT_EQUALS("vais", terms[3]);
     ASSERT_EQUALS("excit", terms[4]);
 }
