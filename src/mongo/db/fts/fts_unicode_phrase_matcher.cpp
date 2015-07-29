@@ -52,14 +52,13 @@ bool UnicodeFTSPhraseMatcher::phraseMatches(const string& phrase,
     if (options & kCaseSensitive) {
         matchOptions |= unicode::String::kCaseSensitive;
     }
+
     if (options & kDiacriticSensitive) {
         matchOptions |= unicode::String::kDiacriticSensitive;
     }
 
-    return unicode::String::substrMatch(unicode::String(haystack),
-                                        unicode::String(phrase),
-                                        matchOptions,
-                                        _caseFoldMode);
+    return unicode::String::substrMatch(
+        unicode::String(haystack), unicode::String(phrase), matchOptions, _caseFoldMode);
 }
 
 }  // namespace fts
