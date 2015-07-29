@@ -53,33 +53,33 @@ public:
     /**
      * Options for generating tokens.
      */
-    using FTSTokenizerOptions = uint8_t;
+    using Options = uint8_t;
 
     /**
      * Default means lower cased, diacritics removed, and stop words are not filtered.
      */
-    const static FTSTokenizerOptions kNone = 0;
+    static const Options kNone = 0;
 
     /**
      * Do not lower case terms.
      */
-    const static FTSTokenizerOptions kGenerateCaseSensitiveTokens = 1 << 0;
+    static const Options kGenerateCaseSensitiveTokens = 1 << 0;
 
     /**
      * Filter out stop words from return tokens.
      */
-    const static FTSTokenizerOptions kFilterStopWords = 1 << 1;
+    static const Options kFilterStopWords = 1 << 1;
 
     /**
      * Do not remove diacritics from terms.
      */
-    const static FTSTokenizerOptions kGenerateDiacriticSensitiveTokens = 1 << 2;
+    static const Options kGenerateDiacriticSensitiveTokens = 1 << 2;
 
     /**
      * Process a new document, and discards any previous results.
      * May be called multiple times on an instance of an iterator.
      */
-    virtual void reset(StringData document, FTSTokenizerOptions options) = 0;
+    virtual void reset(StringData document, Options options) = 0;
 
     /**
      * Moves to the next token in the iterator.

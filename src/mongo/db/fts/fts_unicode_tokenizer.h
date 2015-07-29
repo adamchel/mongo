@@ -46,7 +46,7 @@ class StopWords;
  * A iterator of "documents" where a document contains words delimited by a predefined set of
  * Unicode delimiters (see gen_delimiter_list.py)
  * Uses
- * - Tokenizer for tokenizing words via Unicode delimiters (see gen_delimiter_list.py).
+ * - A list of Unicode delimiters for tokenizing words (see gen_delimiter_list.py).
  * - tolower from mongo::unicode, which supports UTF-8 simple and Turkish case folding
  * - Stemmer (ie, Snowball Stemmer) to stem words.
  * - Embeded stop word lists for each language in StopWord class
@@ -54,13 +54,13 @@ class StopWords;
  * For each word returns a stem version of a word optimized for full text indexing.
  * Optionally supports returning case sensitive search terms.
  */
-class UnicodeFTSTokenizer : public FTSTokenizer {
+class UnicodeFTSTokenizer final : public FTSTokenizer {
     MONGO_DISALLOW_COPYING(UnicodeFTSTokenizer);
 
 public:
     UnicodeFTSTokenizer(const FTSLanguage* language);
 
-    void reset(StringData document, FTSTokenizerOptions options) final;
+    void reset(StringData document, Options options) final;
 
     bool moveNext() final;
 
@@ -83,7 +83,7 @@ private:
     unicode::String _document;
     size_t _pos;
 
-    FTSTokenizerOptions _options;
+    Options _options;
 
     std::string _stem;
 };
