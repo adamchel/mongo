@@ -80,8 +80,30 @@ TEST(FtsUnicodeTokenizer, English) {
     ASSERT_EQUALS("run", terms[5]);
 }
 
+// Ensure that the tokenization still works correctly when there are leading delimiters.
+TEST(FtsUnicodeTokenizer, EnglishLeadingDelimiters) {
+    std::vector<std::string> terms =
+        tokenizeString("  , Do you see Mark's dog running?", "english", FTSTokenizer::kNone);
+
+    ASSERT_EQUALS(6U, terms.size());
+    ASSERT_EQUALS("do", terms[0]);
+    ASSERT_EQUALS("you", terms[1]);
+    ASSERT_EQUALS("see", terms[2]);
+    ASSERT_EQUALS("mark", terms[3]);
+    ASSERT_EQUALS("dog", terms[4]);
+    ASSERT_EQUALS("run", terms[5]);
+}
+
+// Ensure that strings containing only delimiters are properly handled.
+TEST(FtsUnicodeTokenizer, OnlyDelimiters) {
+    std::vector<std::string> terms =
+        tokenizeString("   ", "english", FTSTokenizer::kNone);
+
+    ASSERT_EQUALS(0U, terms.size());
+}
+
 // Ensure punctuation is filtered out of the indexed document and the 'est is separated.
-TEST(FtsUnicodeTokenizer, French) {
+TEST(FtsUnicodeTokenizer, FrenchAndNonAsciiPunctuation) {
     std::vector<std::string> terms = tokenizeString(
         UTF8("Voyez-vous «le chien» de Mark courante? C'est bien!"), "french", FTSTokenizer::kNone);
 
