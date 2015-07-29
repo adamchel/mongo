@@ -41,7 +41,10 @@ public:
     TextMatchExpression() : LeafMatchExpression(TEXT) {}
     virtual ~TextMatchExpression() {}
 
-    Status init(const std::string& query, const std::string& language, bool caseSensitive, bool diacriticSensitive);
+    Status init(const std::string& query,
+                const std::string& language,
+                bool caseSensitive,
+                bool diacriticSensitive);
 
     virtual bool matchesSingleElement(const BSONElement& e) const;
 
