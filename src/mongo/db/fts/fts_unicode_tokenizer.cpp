@@ -59,7 +59,7 @@ UnicodeFTSTokenizer::UnicodeFTSTokenizer(const FTSLanguage* language)
     }
 }
 
-void UnicodeFTSTokenizer::reset(StringData document, FTSTokenizerOptions options) {
+void UnicodeFTSTokenizer::reset(StringData document, Options options) {
     _options = options;
     _pos = 0;
     _document = unicode::String(document);

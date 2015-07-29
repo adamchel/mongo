@@ -47,7 +47,7 @@ namespace fts {
 
 std::vector<std::string> tokenizeString(const char* str,
                                         const char* language,
-                                        FTSTokenizer::FTSTokenizerOptions options) {
+                                        FTSTokenizer::Options options) {
     // TODO: in next patch set, make this with text index version 3, and get the tokenizer directly
     // from the FTSLanguage.
     StatusWithFTSLanguage swl = FTSLanguage::make(language, TEXT_INDEX_VERSION_2);

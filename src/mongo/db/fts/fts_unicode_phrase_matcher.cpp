@@ -46,7 +46,7 @@ UnicodeFTSPhraseMatcher::UnicodeFTSPhraseMatcher(const FTSLanguage* language) {
 
 bool UnicodeFTSPhraseMatcher::phraseMatches(const string& phrase,
                                             const string& haystack,
-                                            PhraseMatcherOptions options) const {
+                                            Options options) const {
     unicode::String::SubstrMatchOptions matchOptions = unicode::String::kNone;
 
     if (options & kCaseSensitive) {
