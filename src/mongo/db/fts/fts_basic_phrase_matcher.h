@@ -36,7 +36,8 @@ namespace fts {
 
 /**
  * A phrase matcher that looks for exact substring matches with optional ASCII-aware case
- * insensitivity.
+ * insensitivity. This phrase matcher does not implement the kDiacriticSensitive match option. All
+ * operations are inherently diacritic sensitive.
  */
 class BasicFTSPhraseMatcher final : public FTSPhraseMatcher {
     MONGO_DISALLOW_COPYING(BasicFTSPhraseMatcher);
