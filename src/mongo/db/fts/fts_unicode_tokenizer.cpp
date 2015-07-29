@@ -64,6 +64,7 @@ void UnicodeFTSTokenizer::reset(StringData document, Options options) {
     _pos = 0;
     _document = unicode::String(document);
 
+    // Skip any leading delimiters (and handle the case where the document is entirely delimiters).
     _skipDelimiters();
 }
 
@@ -74,19 +75,21 @@ bool UnicodeFTSTokenizer::moveNext() {
             return false;
         }
 
-        // Find next word
+        // Traverse through non-delimiters and build the next token.
         size_t start = _pos++;
         while (_pos < _document.size() &&
                (!unicode::codepointIsDelimiter(_document[_pos], _delimListLanguage))) {
             ++_pos;
         }
         unicode::String token = _document.substr(start, _pos - start);
-        _skipDelimiters();
 
-        unicode::String word = token.toLower(_caseFoldMode);
+        // Skip the delimiters before the next token.
+        _skipDelimiters();
 
         // Stop words are case-sensitive and diacritic sensitive, so we need them to be lower cased
         // but with diacritics not removed to check against the stop word list.
+        unicode::String word = token.toLower(_caseFoldMode);
+
         if ((_options & kFilterStopWords) && _stopWords->isStopWord(word.toString())) {
             continue;
         }
@@ -108,13 +111,11 @@ StringData UnicodeFTSTokenizer::get() const {
     return _stem;
 }
 
-bool UnicodeFTSTokenizer::_skipDelimiters() {
-    size_t start = _pos;
+void UnicodeFTSTokenizer::_skipDelimiters() {
     while (_pos < _document.size() &&
            unicode::codepointIsDelimiter(_document[_pos], _delimListLanguage)) {
         ++_pos;
     }
-    return _pos > start;
 }
 
 }  // namespace fts

@@ -69,9 +69,9 @@ public:
 private:
     /**
      * Helper that moves the tokenizer past all delimiters that shouldn't be considered part of
-     * tokens. Returns true if delimiters were skipped, false if otherwise.
+     * tokens.
      */
-    bool _skipDelimiters();
+    void _skipDelimiters();
 
     unicode::DelimiterListLanguage _delimListLanguage;
     unicode::CaseFoldMode _caseFoldMode;
