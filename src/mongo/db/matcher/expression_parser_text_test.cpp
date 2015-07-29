@@ -122,5 +122,4 @@ TEST(MatchExpressionParserText, DiacriticSensitiveError) {
     StatusWithMatchExpression result = MatchExpressionParser::parse(query);
     ASSERT_FALSE(result.isOK());
 }
-
 }
