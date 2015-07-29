@@ -81,9 +81,16 @@ bool FTSMatcher::hasPositiveTerm(const BSONObj& obj) const {
 bool FTSMatcher::_hasPositiveTerm_string(const FTSLanguage* language, const string& raw) const {
     std::unique_ptr<FTSTokenizer> tokenizer(language->createTokenizer());
 
-    tokenizer->reset(raw.c_str(),
-                     _query.getCaseSensitive() ? FTSTokenizer::kGenerateCaseSensitiveTokens
-                                               : FTSTokenizer::kNone);
+    FTSTokenizer::Options tokenizerOptions = FTSTokenizer::kNone;
+
+    if (_query.getCaseSensitive()) {
+        tokenizerOptions |= FTSTokenizer::kGenerateCaseSensitiveTokens;
+    }
+    if (_query.getDiacriticSensitive()) {
+        tokenizerOptions |= FTSTokenizer::kGenerateDiacriticSensitiveTokens;
+    }
+
+    tokenizer->reset(raw.c_str(), tokenizerOptions);
 
     while (tokenizer->moveNext()) {
         string word = tokenizer->get().toString();
@@ -114,9 +121,16 @@ bool FTSMatcher::hasNegativeTerm(const BSONObj& obj) const {
 bool FTSMatcher::_hasNegativeTerm_string(const FTSLanguage* language, const string& raw) const {
     std::unique_ptr<FTSTokenizer> tokenizer(language->createTokenizer());
 
-    tokenizer->reset(raw.c_str(),
-                     _query.getCaseSensitive() ? FTSTokenizer::kGenerateCaseSensitiveTokens
-                                               : FTSTokenizer::kNone);
+    FTSTokenizer::Options tokenizerOptions = FTSTokenizer::kNone;
+
+    if (_query.getCaseSensitive()) {
+        tokenizerOptions |= FTSTokenizer::kGenerateCaseSensitiveTokens;
+    }
+    if (_query.getDiacriticSensitive()) {
+        tokenizerOptions |= FTSTokenizer::kGenerateDiacriticSensitiveTokens;
+    }
+
+    tokenizer->reset(raw.c_str(), tokenizerOptions);
 
     while (tokenizer->moveNext()) {
         string word = tokenizer->get().toString();
@@ -153,11 +167,16 @@ bool FTSMatcher::_phraseMatch(const string& phrase, const BSONObj& obj) const {
     while (it.more()) {
         FTSIteratorValue val = it.next();
 
-        if (val._language->getPhraseMatcher().phraseMatches(phrase,
-                                                            val._text,
-                                                            _query.getCaseSensitive()
-                                                                ? FTSPhraseMatcher::kCaseSensitive
-                                                                : FTSPhraseMatcher::kNone)) {
+        FTSPhraseMatcher::Options matcherOptions = FTSPhraseMatcher::kNone;
+
+        if (_query.getCaseSensitive()) {
+            matcherOptions |= FTSPhraseMatcher::kCaseSensitive;
+        }
+        if (_query.getDiacriticSensitive()) {
+            matcherOptions |= FTSPhraseMatcher::kDiacriticSensitive;
+        }
+
+        if (val._language->getPhraseMatcher().phraseMatches(phrase, val._text, matcherOptions)) {
             return true;
         }
     }
