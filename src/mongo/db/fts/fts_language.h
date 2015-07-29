@@ -32,6 +32,7 @@
 
 #include "mongo/db/fts/fts_basic_phrase_matcher.h"
 #include "mongo/db/fts/fts_phrase_matcher.h"
+#include "mongo/db/fts/fts_unicode_phrase_matcher.h"
 #include "mongo/db/fts/fts_util.h"
 #include "mongo/base/status_with.h"
 
@@ -43,11 +44,11 @@ namespace fts {
 
 class FTSTokenizer;
 
-#define MONGO_FTS_LANGUAGE_DECLARE(language, name, version)                                    \
+#define MONGO_FTS_LANGUAGE_DECLARE(language, name, minversion)                                 \
     BasicFTSLanguage language;                                                                 \
     MONGO_INITIALIZER_GENERAL(language, MONGO_NO_PREREQUISITES, ("FTSAllLanguagesRegistered")) \
     (::mongo::InitializerContext * context) {                                                  \
-        FTSLanguage::registerLanguage(name, version, &language);                               \
+        FTSLanguage::registerLanguage(name, minversion, &language);                            \
         return Status::OK();                                                                   \
     }
 
@@ -94,13 +95,12 @@ public:
     virtual const FTSPhraseMatcher& getPhraseMatcher() const = 0;
 
     /**
-     * Register std::string 'languageName' as a new language with text index version
-     * 'textIndexVersion'.  Saves the resulting language to out-argument 'languageOut'.
-     * Subsequent calls to FTSLanguage::make() will recognize the newly-registered language
-     * string.
+     * Register std::string 'languageName' as a new language with the minimum text index version
+     * 'minTextIndexVersion'.  Saves the resulting language to out-argument 'languageOut'.
+     * Subsequent calls to FTSLanguage::make() will recognize the newly-registered language string.
      */
     static void registerLanguage(StringData languageName,
-                                 TextIndexVersion textIndexVersion,
+                                 TextIndexVersion minTextIndexVersion,
                                  FTSLanguage* languageOut);
 
     /**
@@ -113,10 +113,11 @@ public:
                                       TextIndexVersion textIndexVersion);
 
     /**
-     * Return the FTSLanguage associated with the given language string.  Returns an error
-     * Status if an invalid language std::string is passed.
+     * Return the FTSLanguage associated with the given language string and the given text index
+     * version.  Returns an error Status if an invalid language std::string is passed, or if the text
+     * index version passed is less than the minimum text index version for the given language.
      *
-     * For textIndexVersion=TEXT_INDEX_VERSION_2, language strings are
+     * For textIndexVersion>=TEXT_INDEX_VERSION_2, language strings are
      * case-insensitive, and need to be in one of the two following forms:
      * - English name, like "spanish".
      * - Two-letter code, like "es".
@@ -130,9 +131,21 @@ public:
     static StatusWith<const FTSLanguage*> make(StringData langName,
                                                TextIndexVersion textIndexVersion);
 
-private:
+protected:
+    /**
+     * Helper called by make(). Returns a clone of this language, but with a higher text index
+     * version. It is an error to call cloneWithIndexVersion() on an unitialized language. It is
+     * also an error to call this with a textIndexVersion less than _minTextIndexVersion.
+     */
+    virtual std::unique_ptr<FTSLanguage> cloneWithIndexVersion(
+        TextIndexVersion textIndexVersion) const = 0;
+
+    TextIndexVersion _minTextIndexVersion;
+    TextIndexVersion _textIndexVersion;
+
     // std::string representation of language in canonical form.
     std::string _canonicalName;
+    std::unique_ptr<UnicodeFTSPhraseMatcher> _unicodePhraseMatcher;
 };
 
 typedef StatusWith<const FTSLanguage*> StatusWithFTSLanguage;
@@ -142,6 +155,10 @@ class BasicFTSLanguage : public FTSLanguage {
 public:
     std::unique_ptr<FTSTokenizer> createTokenizer() const final;
     const FTSPhraseMatcher& getPhraseMatcher() const final;
+
+protected:
+    std::unique_ptr<FTSLanguage> cloneWithIndexVersion(
+        TextIndexVersion textIndexVersion) const final;
 
 private:
     BasicFTSPhraseMatcher _basicPhraseMatcher;
