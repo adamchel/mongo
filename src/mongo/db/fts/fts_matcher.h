@@ -81,7 +81,7 @@ private:
      * check.
      */
     bool canSkipPositiveTermCheck() const {
-        return !_query.getCaseSensitive();
+        return !_query.getCaseSensitive() && !_query.getDiacriticSensitive();
     }
 
     /**
