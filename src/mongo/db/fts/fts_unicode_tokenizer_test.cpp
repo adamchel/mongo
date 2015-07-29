@@ -80,10 +80,11 @@ TEST(FtsUnicodeTokenizer, English) {
     ASSERT_EQUALS("run", terms[5]);
 }
 
-// Ensure that the tokenization still works correctly when there are leading delimiters.
-TEST(FtsUnicodeTokenizer, EnglishLeadingDelimiters) {
+// Ensure that the tokenization still works correctly when there are leading and/or trailing
+// delimiters.
+TEST(FtsUnicodeTokenizer, EnglishLeadingAndTrailingDelimiters) {
     std::vector<std::string> terms =
-        tokenizeString("  , Do you see Mark's dog running?", "english", FTSTokenizer::kNone);
+        tokenizeString("  , Do you see Mark's dog running?   ", "english", FTSTokenizer::kNone);
 
     ASSERT_EQUALS(6U, terms.size());
     ASSERT_EQUALS("do", terms[0]);
@@ -96,8 +97,7 @@ TEST(FtsUnicodeTokenizer, EnglishLeadingDelimiters) {
 
 // Ensure that strings containing only delimiters are properly handled.
 TEST(FtsUnicodeTokenizer, OnlyDelimiters) {
-    std::vector<std::string> terms =
-        tokenizeString("   ", "english", FTSTokenizer::kNone);
+    std::vector<std::string> terms = tokenizeString("   ", "english", FTSTokenizer::kNone);
 
     ASSERT_EQUALS(0U, terms.size());
 }
