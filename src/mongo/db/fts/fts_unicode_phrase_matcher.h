@@ -43,10 +43,10 @@ class FTSLanguage;
  * A phrase matcher that looks for exact substring matches that ignore diacritics, and with UTF-8
  * aware case folding if the phrase match is not specified as case sensitive. Optionally, the phrase
  * matching can be diacritic sensitive if a parameter is passed to the constructor. Additionally, if
- * the _turkish flag is set to true, the case of the Turkish I will be properly handled in case
- * insensitive matches.
+ * the language passed to the phrase matcher's constructor is Turkish (uses the special I case fold
+ * mapping), the phrase matcher will take that into account.
  */
-class UnicodeFTSPhraseMatcher : public FTSPhraseMatcher {
+class UnicodeFTSPhraseMatcher final : public FTSPhraseMatcher {
     MONGO_DISALLOW_COPYING(UnicodeFTSPhraseMatcher);
 
 public:
@@ -54,7 +54,7 @@ public:
 
     bool phraseMatches(const std::string& phrase,
                        const std::string& haystack,
-                       PhraseMatcherOptions options) const final;
+                       Options options) const final;
 
 private:
     unicode::CaseFoldMode _caseFoldMode;

@@ -62,7 +62,7 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitive) {
     ASSERT_OK(swl);
 
     UnicodeFTSPhraseMatcher phraseMatcher(swl.getValue());
-    FTSPhraseMatcher::PhraseMatcherOptions options = FTSPhraseMatcher::kNone;
+    FTSPhraseMatcher::Options options = FTSPhraseMatcher::kNone;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
     ASSERT(phraseMatcher.phraseMatches(find2, str, options));
@@ -88,7 +88,7 @@ TEST(FtsUnicodePhraseMatcher, CaseSensitiveAndDiacriticInsensitive) {
     ASSERT_OK(swl);
 
     UnicodeFTSPhraseMatcher phraseMatcher(swl.getValue());
-    FTSPhraseMatcher::PhraseMatcherOptions options = FTSPhraseMatcher::kCaseSensitive;
+    FTSPhraseMatcher::Options options = FTSPhraseMatcher::kCaseSensitive;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
     ASSERT(phraseMatcher.phraseMatches(find2, str, options));
@@ -114,7 +114,7 @@ TEST(FtsUnicodePhraseMatcher, CaseInsensitiveAndDiacriticSensitive) {
     ASSERT_OK(swl);
 
     UnicodeFTSPhraseMatcher phraseMatcher(swl.getValue());
-    FTSPhraseMatcher::PhraseMatcherOptions options = FTSPhraseMatcher::kDiacriticSensitive;
+    FTSPhraseMatcher::Options options = FTSPhraseMatcher::kDiacriticSensitive;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
     ASSERT(phraseMatcher.phraseMatches(find2, str, options));
@@ -140,7 +140,7 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticSensitive) {
     ASSERT_OK(swl);
 
     UnicodeFTSPhraseMatcher phraseMatcher(swl.getValue());
-    FTSPhraseMatcher::PhraseMatcherOptions options =
+    FTSPhraseMatcher::Options options =
         FTSPhraseMatcher::kCaseSensitive | FTSPhraseMatcher::kDiacriticSensitive;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
@@ -165,7 +165,7 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitiveTurkish) {
     ASSERT_OK(swl);
 
     UnicodeFTSPhraseMatcher phraseMatcher(swl.getValue());
-    FTSPhraseMatcher::PhraseMatcherOptions options = FTSPhraseMatcher::kNone;
+    FTSPhraseMatcher::Options options = FTSPhraseMatcher::kNone;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
     ASSERT(phraseMatcher.phraseMatches(find2, str, options));
