@@ -54,6 +54,11 @@ public:
     static const int kCaseSensitive = 1 << 0;
 
     /**
+     * Remove diacritics (thus ignoring them) as part of phrase matching.
+     */
+    static const int kDiacriticSensitive = 1 << 1;
+
+    /**
      * Does the string 'phrase' occur in the string 'haystack'?
      */
     virtual bool phraseMatches(const std::string& phrase,
