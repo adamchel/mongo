@@ -43,7 +43,8 @@ extern const std::string INDEX_NAME;
 
 enum TextIndexVersion {
     TEXT_INDEX_VERSION_1 = 1,  // Legacy index format.  Deprecated.
-    TEXT_INDEX_VERSION_2 = 2   // Current index format.
+    TEXT_INDEX_VERSION_2 = 2,  // Current index format.
+    TEXT_INDEX_VERSION_3 = 3,  // Index format with Unicode support.
 };
 }
 }
