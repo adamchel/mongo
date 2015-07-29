@@ -52,6 +52,7 @@ public:
     Status parse(const std::string& query,
                  StringData language,
                  bool caseSensitive,
+                 bool diacriticSensitive,
                  TextIndexVersion textIndexVersion);
 
     const std::set<std::string>& getPositiveTerms() const {
@@ -77,6 +78,9 @@ public:
     bool getCaseSensitive() const {
         return _caseSensitive;
     }
+    bool getDiacriticSensitive() const {
+        return _diacriticSensitive;
+    }
 
     std::string toString() const;
 
@@ -85,12 +89,14 @@ public:
     BSONObj toBSON() const;
 
     static const bool caseSensitiveDefault;
+    static const bool diacriticSensitiveDefault;
 
 private:
     void _addTerms(FTSTokenizer* tokenizer, const std::string& tokens, bool negated);
 
     const FTSLanguage* _language;
     bool _caseSensitive;
+    bool _diacriticSensitive;
 
     // Positive terms.
     std::set<std::string> _positiveTerms;
