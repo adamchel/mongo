@@ -99,17 +99,17 @@ public:
     /**
      * No options (case insensitive and diacritic insensitive).
      */
-    const static SubstrMatchOptions kNone = 0;
+    static const SubstrMatchOptions kNone = 0;
 
     /**
      * Perform case sensitive substring match.
      */
-    const static SubstrMatchOptions kCaseSensitive = 1 << 0;
+    static const SubstrMatchOptions kCaseSensitive = 1 << 0;
 
     /**
      * Perform diacritic sensitive substring match.
      */
-    const static SubstrMatchOptions kDiacriticSensitive = 1 << 1;
+    static const SubstrMatchOptions kDiacriticSensitive = 1 << 1;
 
     /**
      * Search the string 'str' for the string 'find'. If 'find' exists in 'str', return true, else
