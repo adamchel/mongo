@@ -122,4 +122,17 @@ TEST(MatchExpressionParserText, DiacriticSensitiveError) {
     StatusWithMatchExpression result = MatchExpressionParser::parse(query);
     ASSERT_FALSE(result.isOK());
 }
+
+TEST(MatchExpressionParserText, DiacriticSensitiveAndCaseSensitiveTrue) {
+    BSONObj query = fromjson("{$text: {$search:\"awesome\", $diacriticSensitive: true, $caseSensitive: true}}");
+
+    StatusWithMatchExpression result = MatchExpressionParser::parse(query);
+    ASSERT_TRUE(result.isOK());
+
+    ASSERT_EQUALS(MatchExpression::TEXT, result.getValue()->matchType());
+    std::unique_ptr<TextMatchExpression> textExp(
+        static_cast<TextMatchExpression*>(result.getValue().release()));
+    ASSERT_EQUALS(textExp->getDiacriticSensitive(), true);
+    ASSERT_EQUALS(textExp->getCaseSensitive(), true);
+}
 }

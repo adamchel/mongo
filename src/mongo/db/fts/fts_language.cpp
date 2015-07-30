@@ -94,7 +94,7 @@ std::unique_ptr<FTSTokenizer> BasicFTSLanguage::createTokenizer() const {
 }
 
 const FTSPhraseMatcher& BasicFTSLanguage::getPhraseMatcher() const {
-    if (_textIndexVersion >= TEXT_INDEX_VERSION_3) {
+    if (_textIndexVersion == TEXT_INDEX_VERSION_3) {
         return *_unicodePhraseMatcher;
     } else if (_textIndexVersion <= TEXT_INDEX_VERSION_2) {
         return _basicPhraseMatcher;
@@ -112,9 +112,7 @@ std::unique_ptr<FTSLanguage> BasicFTSLanguage::cloneWithIndexVersion(
     clone->_textIndexVersion = textIndexVersion;
     clone->_unicodePhraseMatcher = stdx::make_unique<UnicodeFTSPhraseMatcher>(this);
 
-    std::unique_ptr<FTSLanguage> ftsLanguageClone = std::move(clone);
-
-    return ftsLanguageClone;
+    return std::move(clone);
 }
 
 MONGO_INITIALIZER_GROUP(FTSAllLanguagesRegistered, MONGO_NO_PREREQUISITES, MONGO_NO_DEPENDENTS);
@@ -277,11 +275,7 @@ StatusWithFTSLanguage FTSLanguage::make(StringData langName, TextIndexVersion te
             return StatusWithFTSLanguage(
                 foundLangauge->cloneWithIndexVersion(textIndexVersion).release());
         } else if (textIndexVersion < foundLangauge->_minTextIndexVersion) {
-            Status status = Status(ErrorCodes::BadValue,
-                                   mongoutils::str::stream()
-                                       << "text index version " << textIndexVersion
-                                       << " too low for language: \"" << langName << "\"");
-            return StatusWithFTSLanguage(status);
+            invariant(false);
         }
         return StatusWithFTSLanguage(it->second);
     } else {  // legacy text index

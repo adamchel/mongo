@@ -117,12 +117,12 @@ public:
      * version.  Returns an error Status if an invalid language std::string is passed, or if the
      * text index version passed is less than the minimum text index version for the given language.
      *
-     * For textIndexVersion>=TEXT_INDEX_VERSION_2, language strings are
+     * For textIndexVersion >= TEXT_INDEX_VERSION_2, language strings are
      * case-insensitive, and need to be in one of the two following forms:
      * - English name, like "spanish".
      * - Two-letter code, like "es".
      *
-     * For textIndexVersion=TEXT_INDEX_VERSION_1, no validation or normalization of
+     * For textIndexVersion == TEXT_INDEX_VERSION_1, no validation or normalization of
      * language strings is performed.  This is necessary to preserve indexing behavior for
      * documents with language strings like "en": for compatibility, text data in these
      * documents needs to be processed with the English stemmer and the empty stopword list
