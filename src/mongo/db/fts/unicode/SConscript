@@ -39,7 +39,7 @@ env.Library(
         'string.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base/base',
+        '$BUILD_DIR/mongo/base',
         '$BUILD_DIR/mongo/linenoise_utf8',
     ]
 )
