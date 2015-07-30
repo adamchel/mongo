@@ -176,6 +176,5 @@ FTSTokenizer::Options _getTokenizerOptions() const {
 
     return tokenizerOptions;
 }
-
 }
 }
