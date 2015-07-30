@@ -29,8 +29,6 @@
 #include "mongo/db/fts/unicode/string.h"
 
 #include <algorithm>
-#include <codecvt>
-#include <locale>
 
 #include "mongo/shell/linenoise_utf8.h"
 #include "mongo/util/assert_util.h"
@@ -41,13 +39,7 @@ namespace unicode {
 using linenoise_utf8::copyString32to8;
 using linenoise_utf8::copyString8to32;
 
-using std::codecvt;
-using std::codecvt_base;
-using std::locale;
-using std::mbstate_t;
-using std::string;
 using std::u32string;
-using std::use_facet;
 
 String::String(const StringData utf8_src) {
     // _data is the target, resize it so that it's guaranteed to fit all of the input characters,
