@@ -101,6 +101,12 @@ private:
      */
     bool _phraseMatch(const std::string& phrase, const BSONObj& obj) const;
 
+    /**
+     * Helper method that returns the tokenizer options that this matcher should use, based on the
+     * the query options.
+     */
+    FTSTokenizer::Options _getTokenizerOptions() const;
+
     // TODO These should be unowned pointers instead of owned copies.
     const FTSQuery _query;
     const FTSSpec _spec;
