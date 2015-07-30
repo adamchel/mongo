@@ -124,7 +124,8 @@ TEST(MatchExpressionParserText, DiacriticSensitiveError) {
 }
 
 TEST(MatchExpressionParserText, DiacriticSensitiveAndCaseSensitiveTrue) {
-    BSONObj query = fromjson("{$text: {$search:\"awesome\", $diacriticSensitive: true, $caseSensitive: true}}");
+    BSONObj query =
+        fromjson("{$text: {$search:\"awesome\", $diacriticSensitive: true, $caseSensitive: true}}");
 
     StatusWithMatchExpression result = MatchExpressionParser::parse(query);
     ASSERT_TRUE(result.isOK());
