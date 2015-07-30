@@ -80,17 +80,7 @@ bool FTSMatcher::hasPositiveTerm(const BSONObj& obj) const {
 
 bool FTSMatcher::_hasPositiveTerm_string(const FTSLanguage* language, const string& raw) const {
     std::unique_ptr<FTSTokenizer> tokenizer(language->createTokenizer());
-
-    FTSTokenizer::Options tokenizerOptions = FTSTokenizer::kNone;
-
-    if (_query.getCaseSensitive()) {
-        tokenizerOptions |= FTSTokenizer::kGenerateCaseSensitiveTokens;
-    }
-    if (_query.getDiacriticSensitive()) {
-        tokenizerOptions |= FTSTokenizer::kGenerateDiacriticSensitiveTokens;
-    }
-
-    tokenizer->reset(raw.c_str(), tokenizerOptions);
+    tokenizer->reset(raw.c_str(), _getTokenizerOptions());
 
     while (tokenizer->moveNext()) {
         string word = tokenizer->get().toString();
@@ -120,17 +110,7 @@ bool FTSMatcher::hasNegativeTerm(const BSONObj& obj) const {
 
 bool FTSMatcher::_hasNegativeTerm_string(const FTSLanguage* language, const string& raw) const {
     std::unique_ptr<FTSTokenizer> tokenizer(language->createTokenizer());
-
-    FTSTokenizer::Options tokenizerOptions = FTSTokenizer::kNone;
-
-    if (_query.getCaseSensitive()) {
-        tokenizerOptions |= FTSTokenizer::kGenerateCaseSensitiveTokens;
-    }
-    if (_query.getDiacriticSensitive()) {
-        tokenizerOptions |= FTSTokenizer::kGenerateDiacriticSensitiveTokens;
-    }
-
-    tokenizer->reset(raw.c_str(), tokenizerOptions);
+    tokenizer->reset(raw.c_str(), _getTokenizerOptions());
 
     while (tokenizer->moveNext()) {
         string word = tokenizer->get().toString();
@@ -183,5 +163,19 @@ bool FTSMatcher::_phraseMatch(const string& phrase, const BSONObj& obj) const {
 
     return false;
 }
+
+FTSTokenizer::Options _getTokenizerOptions() const {
+    FTSTokenizer::Options tokenizerOptions = FTSTokenizer::kNone;
+
+    if (_query.getCaseSensitive()) {
+        tokenizerOptions |= FTSTokenizer::kGenerateCaseSensitiveTokens;
+    }
+    if (_query.getDiacriticSensitive()) {
+        tokenizerOptions |= FTSTokenizer::kGenerateDiacriticSensitiveTokens;
+    }
+
+    return tokenizerOptions;
+}
+
 }
 }
