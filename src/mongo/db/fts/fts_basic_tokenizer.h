@@ -62,11 +62,11 @@ class BasicFTSTokenizer final : public FTSTokenizer {
 public:
     BasicFTSTokenizer(const FTSLanguage* language);
 
-    void reset(StringData document, Options options) final;
+    void reset(StringData document, Options options) override;
 
-    bool moveNext() final;
+    bool moveNext() override;
 
-    StringData get() const final;
+    StringData get() const override;
 
 private:
     const FTSLanguage* const _language;
