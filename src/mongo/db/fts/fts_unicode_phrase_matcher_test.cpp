@@ -31,7 +31,7 @@
 
 #include "mongo/unittest/unittest.h"
 
-#ifdef MSC_VER
+#ifdef _MSC_VER
 // Microsoft VS 2013 does not handle UTF-8 strings in char literal strings, error C4566
 // The Microsoft compiler can be tricked into using UTF-8 strings as follows:
 // 1. The file has a UTF-8 BOM
@@ -61,7 +61,7 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitive) {
     StatusWithFTSLanguage swl = FTSLanguage::make("spanish", TEXT_INDEX_VERSION_2);
     ASSERT_OK(swl);
 
-    UnicodeFTSPhraseMatcher phraseMatcher(swl.getValue());
+    UnicodeFTSPhraseMatcher phraseMatcher(*swl.getValue());
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kNone;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
@@ -87,7 +87,7 @@ TEST(FtsUnicodePhraseMatcher, CaseSensitiveAndDiacriticInsensitive) {
     StatusWithFTSLanguage swl = FTSLanguage::make("spanish", TEXT_INDEX_VERSION_2);
     ASSERT_OK(swl);
 
-    UnicodeFTSPhraseMatcher phraseMatcher(swl.getValue());
+    UnicodeFTSPhraseMatcher phraseMatcher(*swl.getValue());
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kCaseSensitive;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
@@ -113,7 +113,7 @@ TEST(FtsUnicodePhraseMatcher, CaseInsensitiveAndDiacriticSensitive) {
     StatusWithFTSLanguage swl = FTSLanguage::make("spanish", TEXT_INDEX_VERSION_2);
     ASSERT_OK(swl);
 
-    UnicodeFTSPhraseMatcher phraseMatcher(swl.getValue());
+    UnicodeFTSPhraseMatcher phraseMatcher(*swl.getValue());
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kDiacriticSensitive;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
@@ -139,7 +139,7 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticSensitive) {
     StatusWithFTSLanguage swl = FTSLanguage::make("spanish", TEXT_INDEX_VERSION_2);
     ASSERT_OK(swl);
 
-    UnicodeFTSPhraseMatcher phraseMatcher(swl.getValue());
+    UnicodeFTSPhraseMatcher phraseMatcher(*swl.getValue());
     FTSPhraseMatcher::Options options =
         FTSPhraseMatcher::kCaseSensitive | FTSPhraseMatcher::kDiacriticSensitive;
 
@@ -164,7 +164,7 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitiveTurkish) {
     StatusWithFTSLanguage swl = FTSLanguage::make("turkish", TEXT_INDEX_VERSION_2);
     ASSERT_OK(swl);
 
-    UnicodeFTSPhraseMatcher phraseMatcher(swl.getValue());
+    UnicodeFTSPhraseMatcher phraseMatcher(*swl.getValue());
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kNone;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
