@@ -164,7 +164,7 @@ bool FTSMatcher::_phraseMatch(const string& phrase, const BSONObj& obj) const {
     return false;
 }
 
-FTSTokenizer::Options _getTokenizerOptions() const {
+FTSTokenizer::Options FTSMatcher::_getTokenizerOptions() const {
     FTSTokenizer::Options tokenizerOptions = FTSTokenizer::kNone;
 
     if (_query.getCaseSensitive()) {

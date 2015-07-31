@@ -32,6 +32,7 @@
 
 #include "mongo/db/fts/fts_query.h"
 #include "mongo/db/fts/fts_spec.h"
+#include "mongo/db/fts/fts_tokenizer.h"
 #include "mongo/db/fts/tokenizer.h"
 
 namespace mongo {
