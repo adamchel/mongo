@@ -60,11 +60,11 @@ class UnicodeFTSTokenizer final : public FTSTokenizer {
 public:
     UnicodeFTSTokenizer(const FTSLanguage* language);
 
-    void reset(StringData document, Options options) final;
+    void reset(StringData document, Options options) override;
 
-    bool moveNext() final;
+    bool moveNext() override;
 
-    StringData get() const final;
+    StringData get() const override;
 
 private:
     /**

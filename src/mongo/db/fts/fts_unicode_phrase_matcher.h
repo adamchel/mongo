@@ -50,11 +50,11 @@ class UnicodeFTSPhraseMatcher final : public FTSPhraseMatcher {
     MONGO_DISALLOW_COPYING(UnicodeFTSPhraseMatcher);
 
 public:
-    UnicodeFTSPhraseMatcher(const FTSLanguage* language);
+    UnicodeFTSPhraseMatcher(const FTSLanguage& language);
 
     bool phraseMatches(const std::string& phrase,
                        const std::string& haystack,
-                       Options options) const final;
+                       Options options) const override;
 
 private:
     unicode::CaseFoldMode _caseFoldMode;
