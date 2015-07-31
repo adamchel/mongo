@@ -110,7 +110,7 @@ std::unique_ptr<FTSLanguage> BasicFTSLanguage::cloneWithIndexVersion(
     clone->_canonicalName = str();
     clone->_minTextIndexVersion = _minTextIndexVersion;
     clone->_textIndexVersion = textIndexVersion;
-    clone->_unicodePhraseMatcher = stdx::make_unique<UnicodeFTSPhraseMatcher>(this);
+    clone->_unicodePhraseMatcher = stdx::make_unique<UnicodeFTSPhraseMatcher>(*this);
 
     return std::move(clone);
 }
@@ -227,7 +227,7 @@ void FTSLanguage::registerLanguage(StringData languageName,
     language->_minTextIndexVersion = minTextIndexVersion;
     language->_textIndexVersion = minTextIndexVersion;
 
-    language->_unicodePhraseMatcher = stdx::make_unique<UnicodeFTSPhraseMatcher>(language);
+    language->_unicodePhraseMatcher = stdx::make_unique<UnicodeFTSPhraseMatcher>(*language);
 
     if (minTextIndexVersion >= TEXT_INDEX_VERSION_2) {
         languageMapV2[languageName.toString()] = language;
