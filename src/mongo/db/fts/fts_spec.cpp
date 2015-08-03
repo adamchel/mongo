@@ -392,7 +392,7 @@ BSONObj FTSSpec::fixSpec(const BSONObj& spec) {
     }
     uassert(17264,
             "default_language is not valid",
-            FTSLanguage::make(default_language, TEXT_INDEX_VERSION_2).getStatus().isOK());
+            FTSLanguage::make(default_language, TEXT_INDEX_VERSION_3).getStatus().isOK());
 
     BSONElement language_override_elt = spec["language_override"];
     string language_override(language_override_elt.str());
