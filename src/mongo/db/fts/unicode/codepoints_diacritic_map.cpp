@@ -24,6 +24,8 @@
  *    delete this exception statement from your version. If you delete this
  *    exception statement from all source files in the program, then also delete
  *    it in the license file.
+ *
+ *    THIS IS A GENERATED FILE, DO NOT MODIFY.
  */
 
 #include "mongo/db/fts/unicode/codepoints.h"
@@ -3963,5 +3965,5 @@ char32_t codepointRemoveDiacritics(char32_t codepoint) {
             return codepoint;
     }
 }
-}  // namespace unicode
-}  // namespace mongo
+}  //  namespace unicode
+}  //  namespace mongo
