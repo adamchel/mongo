@@ -30,6 +30,7 @@
 #include "mongo/db/fts/fts_tokenizer.h"
 #include "mongo/db/fts/fts_unicode_tokenizer.h"
 #include "mongo/unittest/unittest.h"
+#include "mongo/util/text.h"
 
 #ifdef _MSC_VER
 // Microsoft VS 2013 does not handle UTF-8 strings in char literal strings, error C4566
