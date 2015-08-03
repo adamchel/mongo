@@ -28,8 +28,8 @@
 
 #include "mongo/db/fts/fts_language.h"
 #include "mongo/db/fts/fts_unicode_phrase_matcher.h"
-
 #include "mongo/unittest/unittest.h"
+#include "mongo/util/text.h"
 
 #ifdef _MSC_VER
 // Microsoft VS 2013 does not handle UTF-8 strings in char literal strings, error C4566
@@ -47,14 +47,13 @@ namespace fts {
 
 // Case insensitive & diacritic insensitive match.
 TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitive) {
-    std::string str = UTF8(
-        "El pingüino Wenceslao hizo kilómetros bajo exhaustiva lluvia y frío, añoraba a su querido "
-        "cachorro.");
+    std::string str =
+        UTF8("El pingüino Wenceslao hizo kilómetros bajo exhaustiva lluvia y frío, añoraba");
     std::string find1 = UTF8("pinguino wenceslao");
     std::string find2 = UTF8("frio, anoraba");
 
     std::string nofind1 = UTF8("bajo lluvia");
-    std::string nofind2 = UTF8("El cachorro");
+    std::string nofind2 = UTF8("El Wenceslao");
 
     // TODO: in next code review, make this with text index version 3, and get the phrase matcher
     // directly from the FTSLanguage.
@@ -73,9 +72,8 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitive) {
 
 // Case sensitive & diacritic insensitive match.
 TEST(FtsUnicodePhraseMatcher, CaseSensitiveAndDiacriticInsensitive) {
-    std::string str = UTF8(
-        "El pingüino Wenceslao hizo kilómetros bajo exhaustiva lluvia y frío, añoraba a su querido "
-        "cachorro.");
+    std::string str =
+        UTF8("El pingüino Wenceslao hizo kilómetros bajo exhaustiva lluvia y frío, añoraba");
     std::string find1 = UTF8("pinguino Wenceslao");
     std::string find2 = UTF8("El pinguino");
 
@@ -99,9 +97,8 @@ TEST(FtsUnicodePhraseMatcher, CaseSensitiveAndDiacriticInsensitive) {
 
 // Case insensitive & diacritic sensitive match.
 TEST(FtsUnicodePhraseMatcher, CaseInsensitiveAndDiacriticSensitive) {
-    std::string str = UTF8(
-        "El pingüino Wenceslao hizo kilómetros bajo exhaustiva lluvia y frío, añoraba a su querido "
-        "cachorro.");
+    std::string str =
+        UTF8("El pingüino Wenceslao hizo kilómetros bajo exhaustiva lluvia y frío, añoraba");
     std::string find1 = UTF8("HIZO KILÓMETROS");
     std::string find2 = UTF8("el pingüino");
 
@@ -125,14 +122,13 @@ TEST(FtsUnicodePhraseMatcher, CaseInsensitiveAndDiacriticSensitive) {
 
 // Case sensitive & diacritic sensitive match.
 TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticSensitive) {
-    std::string str = UTF8(
-        "El pingüino Wenceslao hizo kilómetros bajo exhaustiva lluvia y frío, añoraba a su querido "
-        "cachorro.");
+    std::string str =
+        UTF8("El pingüino Wenceslao hizo kilómetros bajo exhaustiva lluvia y frío, añoraba");
     std::string find1 = UTF8("pingüino Wenceslao");
-    std::string find2 = UTF8("añoraba a");
+    std::string find2 = UTF8("kilómetros bajo");
 
     std::string nofind1 = UTF8("pinguino Wenceslao");
-    std::string nofind2 = UTF8("añoraba A");
+    std::string nofind2 = UTF8("kilómetros BaJo");
 
     // TODO: in next code review, make this with text index version 3, and get the phrase matcher
     // directly from the FTSLanguage.
