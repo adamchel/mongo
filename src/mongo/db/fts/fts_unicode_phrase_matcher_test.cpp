@@ -140,7 +140,7 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitiveTurkish) {
     std::string find1 = "PİJAMALI hasta";
     std::string find2 = "YAGIZ sofore";
 
-    std::string nofind1 = "PIJAMALI hasta";
+    std::string nofind1 = "çabucak GÜVENDI";
     std::string nofind2 = "yagiz sofore";
 
     // TODO: in next code review, make this with text index version 3, and get the phrase matcher

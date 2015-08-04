@@ -93,10 +93,8 @@ TEST(FtsUnicodeTokenizer, OnlyDelimiters) {
 
 // Ensure punctuation is filtered out of the indexed document and the 'est is separated.
 TEST(FtsUnicodeTokenizer, FrenchAndNonAsciiPunctuation) {
-    std::vector<std::string> terms =
-        tokenizeString("Voyez-vous «le chien» de Mark courante? C'est bien!",
-                       "french",
-                       FTSTokenizer::kNone);
+    std::vector<std::string> terms = tokenizeString(
+        "Voyez-vous «le chien» de Mark courante? C'est bien!", "french", FTSTokenizer::kNone);
 
     ASSERT_EQUALS(10U, terms.size());
     ASSERT_EQUALS("voi", terms[0]);
@@ -111,6 +109,22 @@ TEST(FtsUnicodeTokenizer, FrenchAndNonAsciiPunctuation) {
     ASSERT_EQUALS("bien", terms[9]);
 }
 
+// Ensure punctuation is filtered out of the indexed document and the 'est is separated.
+TEST(FtsUnicodeTokenizer, FrenchDiacriticStemming) {
+    std::vector<std::string> terms =
+        tokenizeString("parlames, parlates, parlerent, parlâmes, parlâtes, parlèrent",
+                       "french",
+                       FTSTokenizer::kNone);
+
+    ASSERT_EQUALS(6U, terms.size());
+    ASSERT_EQUALS("parlam", terms[0]);
+    ASSERT_EQUALS("parlat", terms[1]);
+    ASSERT_EQUALS("parlerent", terms[2]);
+    ASSERT_EQUALS("parl", terms[3]);
+    ASSERT_EQUALS("parl", terms[4]);
+    ASSERT_EQUALS("parl", terms[5]);
+}
+
 // Ensure punctuation is filtered out of the indexed document and that diacritics are not in the
 // resulting tokens.
 TEST(FtsUnicodeTokenizer, Turkish) {
@@ -119,7 +133,7 @@ TEST(FtsUnicodeTokenizer, Turkish) {
 
     ASSERT_EQUALS(7U, terms.size());
     ASSERT_EQUALS("kac", terms[0]);
-    ASSERT_EQUALS("ya", terms[1]);
+    ASSERT_EQUALS("yas", terms[1]);
     ASSERT_EQUALS("sen", terms[2]);
     ASSERT_EQUALS("ve", terms[3]);
     ASSERT_EQUALS("sen", terms[4]);
@@ -130,10 +144,9 @@ TEST(FtsUnicodeTokenizer, Turkish) {
 // Ensure punctuation is filtered out of the indexed document, that diacritics are not in the
 // resulting tokens, and that the generated tokens are not lowercased.
 TEST(FtsUnicodeTokenizer, TurkishCaseSensitive) {
-    std::vector<std::string> terms =
-        tokenizeString("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?",
-                       "turkish",
-                       FTSTokenizer::kGenerateCaseSensitiveTokens);
+    std::vector<std::string> terms = tokenizeString("KAÇ YAŞINDASIN SEN, VE SEN NEREDEN VARDIR?",
+                                                    "turkish",
+                                                    FTSTokenizer::kGenerateCaseSensitiveTokens);
 
     ASSERT_EQUALS(7U, terms.size());
     ASSERT_EQUALS("KAC", terms[0]);
