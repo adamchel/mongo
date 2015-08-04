@@ -28,7 +28,6 @@
 
 #include "mongo/db/fts/fts_spec.h"
 #include "mongo/db/fts/fts_tokenizer.h"
-#include "mongo/db/fts/fts_unicode_tokenizer.h"
 #include "mongo/unittest/unittest.h"
 
 namespace mongo {
@@ -37,17 +36,18 @@ namespace fts {
 std::vector<std::string> tokenizeString(const char* str,
                                         const char* language,
                                         FTSTokenizer::Options options) {
-    StatusWithFTSLanguage swl = FTSLanguage::make(language, TEXT_INDEX_VERSION_2);
+    
+    StatusWithFTSLanguage swl = FTSLanguage::make(language, TEXT_INDEX_VERSION_3);
     ASSERT_OK(swl);
 
-    UnicodeFTSTokenizer tokenizer(swl.getValue());
+    std::unique_ptr<FTSTokenizer> tokenizer = swl.getValue()->createTokenizer();
 
-    tokenizer.reset(str, options);
+    tokenizer->reset(str, options);
 
     std::vector<std::string> terms;
 
-    while (tokenizer.moveNext()) {
-        terms.push_back(tokenizer.get().toString());
+    while (tokenizer->moveNext()) {
+        terms.push_back(tokenizer->get().toString());
     }
 
     return terms;
