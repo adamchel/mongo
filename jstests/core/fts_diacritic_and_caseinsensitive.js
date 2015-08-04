@@ -9,7 +9,7 @@ assert.writeOK(coll.insert({_id: 0, a: "O próximo Vôo à Noite sobre o Atlânt
 assert.commandWorked(coll.ensureIndex({a: "text"}, { default_language: "portuguese" }));
 
 assert.eq([0], queryIDS(coll, "proximo voo a", null));
-assert.eq([0], queryIDS(coll, "atlanticÓ", null));
+assert.eq([0], queryIDS(coll, "átlántico", null));
 assert.eq([0], queryIDS(coll, "\"proxIMO\"", null));
 assert.eq([0], queryIDS(coll, "\"poé\" atlânTico", null));
 assert.eq([0], queryIDS(coll, "\"próximo voo\" \"unico médico\"", null));
