@@ -98,11 +98,13 @@ bool UnicodeFTSTokenizer::moveNext() {
             word = token;
         }
 
-        if (!(_options & kGenerateDiacriticSensitiveTokens)) {
-            word = word.removeDiacritics();
-        }
-
+        // The stemmer is diacritic sensitive, so stem the word before removing diacritics.
         _stem = _stemmer.stem(word.toString());
+
+        if (!(_options & kGenerateDiacriticSensitiveTokens)) {
+            _stem = unicode::String(_stem).removeDiacritics().toString();
+        }
+        
         return true;
     }
 }
