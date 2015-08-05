@@ -66,7 +66,7 @@ void String::setData(const StringData utf8_src) {
                     resultSize,
                     result);
 
-    uassert(28753, "text contains invalid UTF-8", result == 0);
+    uassert(28754, "text contains invalid UTF-8", result == 0);
 
     // Resize _data so it is only as big as what it contains.
     _data.resize(resultSize);
