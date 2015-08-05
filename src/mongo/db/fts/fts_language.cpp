@@ -50,16 +50,17 @@ namespace fts {
 namespace {
 
 /**
- * Case-insensitive StringData comparator.
+ * Case-insensitive StringData comparator for language string within a tuple.
  */
 struct LanguageStringCompare {
-    /** Returns true if lhs < rhs. */
-    bool operator()(std::string lhs, std::string rhs) const {
-        size_t minSize = std::min(lhs.size(), rhs.size());
+    /** Returns true if the string in lhs < the string in rhs. */
+    bool operator()(std::tuple<std::string, TextIndexVersion> lhs,
+                    std::tuple<std::string, TextIndexVersion> rhs) const {
+        size_t minSize = std::min(std::get<0>(lhs).size(), std::get<0>(rhs).size());
 
         for (size_t x = 0; x < minSize; x++) {
-            char a = tolower(lhs[x]);
-            char b = tolower(rhs[x]);
+            char a = tolower(std::get<0>(lhs)[x]);
+            char b = tolower(std::get<0>(rhs)[x]);
             if (a < b) {
                 return true;
             }
@@ -68,14 +69,16 @@ struct LanguageStringCompare {
             }
         }
 
-        return lhs.size() < rhs.size();
+        return std::get<0>(lhs).size() < std::get<0>(rhs).size();
     }
 };
 
-// Lookup table from user language string (case-insensitive) to FTSLanguage.  Populated
-// by initializers in group FTSAllLanguagesRegistered and initializer
-// FTSRegisterLanguageAliases.  For use with TEXT_INDEX_VERSION_2 text indexes and above.
-typedef std::map<std::string, const FTSLanguage*, LanguageStringCompare> LanguageMapV2;
+// Lookup table from user language string (case-insensitive) and text index version to FTSLanguage.
+// Populated by initializers in initializer FTSRegisterV2LanguagesAndLater and initializer
+// FTSRegisterLanguageAliases.  For use with TEXT_INDEX_VERSION_2 text indexes and abov.
+typedef std::map<std::tuple<std::string, TextIndexVersion>,
+                 const FTSLanguage*,
+                 LanguageStringCompare> LanguageMapV2;
 LanguageMapV2 languageMapV2;
 
 // Like languageMapV2, but for use with TEXT_INDEX_VERSION_1 text indexes.
@@ -84,59 +87,87 @@ typedef std::map<StringData, const FTSLanguage*> LanguageMapV1;
 LanguageMapV1 languageMapV1;
 }
 
-std::unique_ptr<FTSTokenizer> BasicFTSLanguage::createTokenizer() const {
-    if (_textIndexVersion == TEXT_INDEX_VERSION_3) {
-        return stdx::make_unique<UnicodeFTSTokenizer>(this);
-    } else if (_textIndexVersion <= TEXT_INDEX_VERSION_2) {
-        return stdx::make_unique<BasicFTSTokenizer>(this);
-    }
-    invariant(false);
-}
-
-const FTSPhraseMatcher& BasicFTSLanguage::getPhraseMatcher() const {
-    if (_textIndexVersion == TEXT_INDEX_VERSION_3) {
-        return *_unicodePhraseMatcher;
-    } else if (_textIndexVersion <= TEXT_INDEX_VERSION_2) {
-        return _basicPhraseMatcher;
-    }
-    invariant(false);
-}
-
-std::unique_ptr<FTSLanguage> BasicFTSLanguage::cloneWithIndexVersion(
-    TextIndexVersion textIndexVersion) const {
-    invariant(textIndexVersion >= _minTextIndexVersion);
-
-    auto clone = stdx::make_unique<BasicFTSLanguage>();
-    clone->_canonicalName = str();
-    clone->_minTextIndexVersion = _minTextIndexVersion;
-    clone->_textIndexVersion = textIndexVersion;
-    clone->_unicodePhraseMatcher = stdx::make_unique<UnicodeFTSPhraseMatcher>(*this);
-
-    return std::move(clone);
-}
-
 MONGO_INITIALIZER_GROUP(FTSAllLanguagesRegistered, MONGO_NO_PREREQUISITES, MONGO_NO_DEPENDENTS);
 
+// FTS Language map. These languages are available with TEXT_INDEX_VERSION_2 and above.
 //
-// Register supported languages' canonical names for TEXT_INDEX_VERSION_2 and above.
+// Parameters:
+// - C++ unique identifier suffix
+// - lower case string name
+// - language alias
 //
+#define MONGO_FTS_LANGUAGE_LIST(MONGO_FTS_LANGUAGE_DECL)    \
+    MONGO_FTS_LANGUAGE_DECL(Danish, "danish", "da")         \
+    MONGO_FTS_LANGUAGE_DECL(Dutch, "dutch", "nl")           \
+    MONGO_FTS_LANGUAGE_DECL(English, "english", "en")       \
+    MONGO_FTS_LANGUAGE_DECL(Finnish, "finnish", "fi")       \
+    MONGO_FTS_LANGUAGE_DECL(French, "french", "fr")         \
+    MONGO_FTS_LANGUAGE_DECL(German, "german", "de")         \
+    MONGO_FTS_LANGUAGE_DECL(Hungarian, "hungarian", "hu")   \
+    MONGO_FTS_LANGUAGE_DECL(Italian, "italian", "it")       \
+    MONGO_FTS_LANGUAGE_DECL(Norwegian, "norwegian", "nb")   \
+    MONGO_FTS_LANGUAGE_DECL(Portuguese, "portuguese", "pt") \
+    MONGO_FTS_LANGUAGE_DECL(Romanian, "romanian", "ro")     \
+    MONGO_FTS_LANGUAGE_DECL(Russian, "russian", "ru")       \
+    MONGO_FTS_LANGUAGE_DECL(Spanish, "spanish", "es")       \
+    MONGO_FTS_LANGUAGE_DECL(Swedish, "swedish", "sv")       \
+    MONGO_FTS_LANGUAGE_DECL(Turkish, "turkish", "tr")
 
-MONGO_FTS_LANGUAGE_DECLARE(languageNoneV2, "none", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageDanishV2, "danish", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageDutchV2, "dutch", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageEnglishV2, "english", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageFinnishV2, "finnish", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageFrenchV2, "french", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageGermanV2, "german", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageHungarianV2, "hungarian", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageItalianV2, "italian", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageNorwegianV2, "norwegian", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languagePortugueseV2, "portuguese", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageRomanianV2, "romanian", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageRussianV2, "russian", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageSpanishV2, "spanish", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageSwedishV2, "swedish", TEXT_INDEX_VERSION_2);
-MONGO_FTS_LANGUAGE_DECLARE(languageTurkishV2, "turkish", TEXT_INDEX_VERSION_2);
+
+// Declare compilation unit local language object.
+// Must be declared statically as global language map only keeps a pointer to the language
+// instance.
+//
+#define LANGUAGE_DECLV2(id, name, alias) BasicFTSLanguage language##id##V2;
+
+#define LANGUAGE_DECLV3(id, name, alias) UnicodeFTSLanguage language##id##V3;
+
+BasicFTSLanguage languageNoneV2;
+MONGO_FTS_LANGUAGE_LIST(LANGUAGE_DECLV2);
+
+UnicodeFTSLanguage languageNoneV3;
+MONGO_FTS_LANGUAGE_LIST(LANGUAGE_DECLV3);
+
+// Registers each language and language aliases in the language map
+//
+#define LANGUAGE_INITV2(id, name, alias) \
+    FTSLanguage::registerLanguage(name, TEXT_INDEX_VERSION_2, &language##id##V2);
+
+#define LANGUAGE_INITV3(id, name, alias) \
+    FTSLanguage::registerLanguage(name, TEXT_INDEX_VERSION_3, &language##id##V3);
+
+/**
+ * Registers each language in the language map
+ */
+MONGO_INITIALIZER_GENERAL(FTSRegisterV2LanguagesAndLater,
+                          MONGO_NO_PREREQUISITES,
+                          ("FTSAllLanguagesRegistered"))
+(::mongo::InitializerContext* context) {
+    FTSLanguage::registerLanguage("none", TEXT_INDEX_VERSION_2, &languageNoneV2);
+    MONGO_FTS_LANGUAGE_LIST(LANGUAGE_INITV2);
+
+    FTSLanguage::registerLanguage("none", TEXT_INDEX_VERSION_3, &languageNoneV3);
+    MONGO_FTS_LANGUAGE_LIST(LANGUAGE_INITV3);
+    return Status::OK();
+}
+
+#define LANGUAGE_ALIASV2(id, name, alias) \
+    FTSLanguage::registerLanguageAlias(&language##id##V2, alias, TEXT_INDEX_VERSION_2);
+
+#define LANGUAGE_ALIASV3(id, name, alias) \
+    FTSLanguage::registerLanguageAlias(&language##id##V3, alias, TEXT_INDEX_VERSION_3);
+
+/**
+ * Registers each language alias in the language map
+ */
+MONGO_INITIALIZER_WITH_PREREQUISITES(FTSRegisterLanguageAliases, ("FTSAllLanguagesRegistered"))
+(InitializerContext* context) {
+    // Register language aliases for TEXT_INDEX_VERSION_2.
+    MONGO_FTS_LANGUAGE_LIST(LANGUAGE_ALIASV2);
+    // Register language aliases for TEXT_INDEX_VERSION_3.
+    MONGO_FTS_LANGUAGE_LIST(LANGUAGE_ALIASV3);
+    return Status::OK();
+}
 
 //
 // Register all Snowball language modules for TEXT_INDEX_VERSION_1.  Note that only the full
@@ -197,42 +228,23 @@ MONGO_FTS_LANGUAGE_DECLARE(languageTrV1, "tr", TEXT_INDEX_VERSION_1);
 MONGO_FTS_LANGUAGE_DECLARE(languageTurV1, "tur", TEXT_INDEX_VERSION_1);
 MONGO_FTS_LANGUAGE_DECLARE(languageTurkishV1, "turkish", TEXT_INDEX_VERSION_1);
 
-MONGO_INITIALIZER_WITH_PREREQUISITES(FTSRegisterLanguageAliases, ("FTSAllLanguagesRegistered"))
-(InitializerContext* context) {
-    // Register language aliases for TEXT_INDEX_VERSION_2 and above.
-    FTSLanguage::registerLanguageAlias(&languageDanishV2, "da", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageDutchV2, "nl", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageEnglishV2, "en", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageFinnishV2, "fi", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageFrenchV2, "fr", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageGermanV2, "de", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageHungarianV2, "hu", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageItalianV2, "it", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageNorwegianV2, "nb", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languagePortugueseV2, "pt", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageRomanianV2, "ro", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageRussianV2, "ru", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageSpanishV2, "es", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageSwedishV2, "sv", TEXT_INDEX_VERSION_2);
-    FTSLanguage::registerLanguageAlias(&languageTurkishV2, "tr", TEXT_INDEX_VERSION_2);
-    return Status::OK();
-}
-
 // static
 void FTSLanguage::registerLanguage(StringData languageName,
-                                   TextIndexVersion minTextIndexVersion,
+                                   TextIndexVersion textIndexVersion,
                                    FTSLanguage* language) {
     verify(!languageName.empty());
     language->_canonicalName = languageName.toString();
-    language->_minTextIndexVersion = minTextIndexVersion;
-    language->_textIndexVersion = minTextIndexVersion;
 
-    language->_unicodePhraseMatcher = stdx::make_unique<UnicodeFTSPhraseMatcher>(*language);
+    if (textIndexVersion >= TEXT_INDEX_VERSION_2) {
+        languageMapV2[std::make_tuple(languageName.toString(), textIndexVersion)] = language;
 
-    if (minTextIndexVersion >= TEXT_INDEX_VERSION_2) {
-        languageMapV2[languageName.toString()] = language;
+        if (textIndexVersion == TEXT_INDEX_VERSION_3) {
+            static_cast<UnicodeFTSLanguage*>(language)->_unicodePhraseMatcher =
+                stdx::make_unique<UnicodeFTSPhraseMatcher>(*language);
+        }
+
     } else {  // legacy text index
-        invariant(minTextIndexVersion == TEXT_INDEX_VERSION_1);
+        invariant(textIndexVersion == TEXT_INDEX_VERSION_1);
         verify(languageMapV1.find(languageName) == languageMapV1.end());
         languageMapV1[languageName] = language;
     }
@@ -241,11 +253,11 @@ void FTSLanguage::registerLanguage(StringData languageName,
 // static
 void FTSLanguage::registerLanguageAlias(const FTSLanguage* language,
                                         StringData alias,
-                                        TextIndexVersion minTextIndexVersion) {
-    if (minTextIndexVersion >= TEXT_INDEX_VERSION_2) {
-        languageMapV2[alias.toString()] = language;
+                                        TextIndexVersion textIndexVersion) {
+    if (textIndexVersion >= TEXT_INDEX_VERSION_2) {
+        languageMapV2[std::make_tuple(alias.toString(), textIndexVersion)] = language;
     } else {  // legacy text index
-        invariant(minTextIndexVersion == TEXT_INDEX_VERSION_1);
+        invariant(textIndexVersion == TEXT_INDEX_VERSION_1);
         verify(languageMapV1.find(alias) == languageMapV1.end());
         languageMapV1[alias] = language;
     }
@@ -261,22 +273,18 @@ const std::string& FTSLanguage::str() const {
 // static
 StatusWithFTSLanguage FTSLanguage::make(StringData langName, TextIndexVersion textIndexVersion) {
     if (textIndexVersion >= TEXT_INDEX_VERSION_2) {
-        LanguageMapV2::const_iterator it = languageMapV2.find(langName.toString());
+        LanguageMapV2::const_iterator it =
+            languageMapV2.find(std::make_tuple(langName.toString(), textIndexVersion));
+
         if (it == languageMapV2.end()) {
             // TEXT_INDEX_VERSION_2 and above reject unrecognized language strings.
-            Status status =
-                Status(ErrorCodes::BadValue,
-                       mongoutils::str::stream() << "unsupported language: \"" << langName << "\"");
+            Status status = Status(ErrorCodes::BadValue,
+                                   mongoutils::str::stream()
+                                       << "unsupported language: \"" << langName
+                                       << "\" for text index version " << textIndexVersion);
             return StatusWithFTSLanguage(status);
         }
 
-        const FTSLanguage* foundLangauge = it->second;
-        if (textIndexVersion > foundLangauge->_minTextIndexVersion) {
-            return StatusWithFTSLanguage(
-                foundLangauge->cloneWithIndexVersion(textIndexVersion).release());
-        } else if (textIndexVersion < foundLangauge->_minTextIndexVersion) {
-            invariant(false);
-        }
         return StatusWithFTSLanguage(it->second);
     } else {  // legacy text index
         invariant(textIndexVersion == TEXT_INDEX_VERSION_1);
@@ -287,6 +295,22 @@ StatusWithFTSLanguage FTSLanguage::make(StringData langName, TextIndexVersion te
         }
         return StatusWithFTSLanguage(it->second);
     }
+}
+
+std::unique_ptr<FTSTokenizer> BasicFTSLanguage::createTokenizer() const {
+    return stdx::make_unique<BasicFTSTokenizer>(this);
+}
+
+const FTSPhraseMatcher& BasicFTSLanguage::getPhraseMatcher() const {
+    return _basicPhraseMatcher;
+}
+
+std::unique_ptr<FTSTokenizer> UnicodeFTSLanguage::createTokenizer() const {
+    return stdx::make_unique<UnicodeFTSTokenizer>(this);
+}
+
+const FTSPhraseMatcher& UnicodeFTSLanguage::getPhraseMatcher() const {
+    return *_unicodePhraseMatcher;
 }
 }
 }
