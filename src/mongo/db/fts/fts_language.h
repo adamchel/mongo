@@ -157,10 +157,11 @@ private:
  */
 class UnicodeFTSLanguage : public FTSLanguage {
 public:
+    UnicodeFTSLanguage(const std::string& languageName) : _unicodePhraseMatcher(languageName) {}
     std::unique_ptr<FTSTokenizer> createTokenizer() const final;
     const FTSPhraseMatcher& getPhraseMatcher() const final;
 
-    std::unique_ptr<UnicodeFTSPhraseMatcher> _unicodePhraseMatcher;
+    UnicodeFTSPhraseMatcher _unicodePhraseMatcher;
 };
 
 extern BasicFTSLanguage languagePorterV1;
