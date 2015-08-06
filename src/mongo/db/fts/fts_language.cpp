@@ -120,12 +120,12 @@ MONGO_INITIALIZER_GROUP(FTSAllLanguagesRegistered, MONGO_NO_PREREQUISITES, MONGO
 //
 #define LANGUAGE_DECLV2(id, name, alias) BasicFTSLanguage language##id##V2;
 
-#define LANGUAGE_DECLV3(id, name, alias) UnicodeFTSLanguage language##id##V3;
+#define LANGUAGE_DECLV3(id, name, alias) UnicodeFTSLanguage language##id##V3(name);
 
 BasicFTSLanguage languageNoneV2;
 MONGO_FTS_LANGUAGE_LIST(LANGUAGE_DECLV2);
 
-UnicodeFTSLanguage languageNoneV3;
+UnicodeFTSLanguage languageNoneV3("none");
 MONGO_FTS_LANGUAGE_LIST(LANGUAGE_DECLV3);
 
 // Registers each language and language aliases in the language map
@@ -237,12 +237,6 @@ void FTSLanguage::registerLanguage(StringData languageName,
 
     if (textIndexVersion >= TEXT_INDEX_VERSION_2) {
         languageMapV2[std::make_tuple(languageName.toString(), textIndexVersion)] = language;
-
-        if (textIndexVersion == TEXT_INDEX_VERSION_3) {
-            static_cast<UnicodeFTSLanguage*>(language)->_unicodePhraseMatcher =
-                stdx::make_unique<UnicodeFTSPhraseMatcher>(*language);
-        }
-
     } else {  // legacy text index
         invariant(textIndexVersion == TEXT_INDEX_VERSION_1);
         verify(languageMapV1.find(languageName) == languageMapV1.end());
@@ -310,7 +304,7 @@ std::unique_ptr<FTSTokenizer> UnicodeFTSLanguage::createTokenizer() const {
 }
 
 const FTSPhraseMatcher& UnicodeFTSLanguage::getPhraseMatcher() const {
-    return *_unicodePhraseMatcher;
+    return _unicodePhraseMatcher;
 }
 }
 }
