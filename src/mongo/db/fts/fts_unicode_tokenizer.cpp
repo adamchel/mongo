@@ -105,7 +105,7 @@ bool UnicodeFTSTokenizer::moveNext() {
             token.resetData(_stem);
             _stem = token.removeDiacritics().toString();
         }
-        
+
         return true;
     }
 }
