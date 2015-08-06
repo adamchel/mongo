@@ -102,7 +102,8 @@ bool UnicodeFTSTokenizer::moveNext() {
         _stem = _stemmer.stem(word.toString());
 
         if (!(_options & kGenerateDiacriticSensitiveTokens)) {
-            _stem = unicode::String(_stem).removeDiacritics().toString();
+            token.resetData(_stem);
+            _stem = token.removeDiacritics().toString();
         }
         
         return true;

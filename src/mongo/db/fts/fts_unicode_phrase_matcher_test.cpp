@@ -43,12 +43,10 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitive) {
     std::string nofind1 = "bajo lluvia";
     std::string nofind2 = "El Wenceslao";
 
-    // TODO: in next code review, make this with text index version 3, and get the phrase matcher
-    // directly from the FTSLanguage.
-    StatusWithFTSLanguage swl = FTSLanguage::make("spanish", TEXT_INDEX_VERSION_2);
-    ASSERT_OK(swl);
+    // TODO: in next code review, make a language with text index version 3, and get the phrase
+    // matcher directly from the FTSLanguage.
 
-    UnicodeFTSPhraseMatcher phraseMatcher(*swl.getValue());
+    UnicodeFTSPhraseMatcher phraseMatcher("spanish");
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kNone;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
@@ -68,12 +66,10 @@ TEST(FtsUnicodePhraseMatcher, CaseSensitiveAndDiacriticInsensitive) {
     std::string nofind1 = "pinguino wenceslao";
     std::string nofind2 = "el pinguino";
 
-    // TODO: in next code review, make this with text index version 3, and get the phrase matcher
-    // directly from the FTSLanguage.
-    StatusWithFTSLanguage swl = FTSLanguage::make("spanish", TEXT_INDEX_VERSION_2);
-    ASSERT_OK(swl);
+    // TODO: in next code review, make a language with text index version 3, and get the phrase
+    // matcher directly from the FTSLanguage.
 
-    UnicodeFTSPhraseMatcher phraseMatcher(*swl.getValue());
+    UnicodeFTSPhraseMatcher phraseMatcher("spanish");
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kCaseSensitive;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
@@ -93,12 +89,10 @@ TEST(FtsUnicodePhraseMatcher, CaseInsensitiveAndDiacriticSensitive) {
     std::string nofind1 = "hizo kilometros";
     std::string nofind2 = "pinguino";
 
-    // TODO: in next code review, make this with text index version 3, and get the phrase matcher
-    // directly from the FTSLanguage.
-    StatusWithFTSLanguage swl = FTSLanguage::make("spanish", TEXT_INDEX_VERSION_2);
-    ASSERT_OK(swl);
+    // TODO: in next code review, make a language with text index version 3, and get the phrase
+    // matcher directly from the FTSLanguage.
 
-    UnicodeFTSPhraseMatcher phraseMatcher(*swl.getValue());
+    UnicodeFTSPhraseMatcher phraseMatcher("spanish");
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kDiacriticSensitive;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
@@ -118,12 +112,10 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticSensitive) {
     std::string nofind1 = "pinguino Wenceslao";
     std::string nofind2 = "kilómetros BaJo";
 
-    // TODO: in next code review, make this with text index version 3, and get the phrase matcher
-    // directly from the FTSLanguage.
-    StatusWithFTSLanguage swl = FTSLanguage::make("spanish", TEXT_INDEX_VERSION_2);
-    ASSERT_OK(swl);
+    // TODO: in next code review, make a language with text index version 3, and get the phrase
+    // matcher directly from the FTSLanguage.
 
-    UnicodeFTSPhraseMatcher phraseMatcher(*swl.getValue());
+    UnicodeFTSPhraseMatcher phraseMatcher("spanish");
     FTSPhraseMatcher::Options options =
         FTSPhraseMatcher::kCaseSensitive | FTSPhraseMatcher::kDiacriticSensitive;
 
@@ -143,12 +135,10 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitiveTurkish) {
     std::string nofind1 = "çabucak GÜVENDI";
     std::string nofind2 = "yagiz sofore";
 
-    // TODO: in next code review, make this with text index version 3, and get the phrase matcher
-    // directly from the FTSLanguage.
-    StatusWithFTSLanguage swl = FTSLanguage::make("turkish", TEXT_INDEX_VERSION_2);
-    ASSERT_OK(swl);
+    // TODO: in next code review, make a language with text index version 3, and get the phrase
+    // matcher directly from the FTSLanguage.
 
-    UnicodeFTSPhraseMatcher phraseMatcher(*swl.getValue());
+    UnicodeFTSPhraseMatcher phraseMatcher("turkish");
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kNone;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));

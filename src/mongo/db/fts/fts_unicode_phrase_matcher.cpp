@@ -36,8 +36,8 @@ namespace fts {
 
 using std::string;
 
-UnicodeFTSPhraseMatcher::UnicodeFTSPhraseMatcher(const FTSLanguage& language) {
-    if (language.str() == "turkish") {
+UnicodeFTSPhraseMatcher::UnicodeFTSPhraseMatcher(const string& language) {
+    if (language == "turkish") {
         _caseFoldMode = unicode::CaseFoldMode::kTurkish;
     } else {
         _caseFoldMode = unicode::CaseFoldMode::kNormal;
