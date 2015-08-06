@@ -59,7 +59,7 @@ class FTSTokenizer;
  *
  * Recommended usage:
  *
- *     StatusWithFTSLanguage swl = FTSLanguage::make( "en", TEXT_INDEX_VERSION_2 );
+ *     StatusWithFTSLanguage swl = FTSLanguage::make( "en", TEXT_INDEX_VERSION_3 );
  *     if ( !swl.getStatus().isOK() ) {
  *         // Error.
  *     }
@@ -115,8 +115,7 @@ public:
 
     /**
      * Return the FTSLanguage associated with the given language string and the given text index
-     * version.  Returns an error Status if an invalid language std::string is passed, or if the
-     * text index version passed is less than the minimum text index version for the given language.
+     * version.  Returns an error Status if an invalid language std::string is passed.
      *
      * For textIndexVersion >= TEXT_INDEX_VERSION_2, language strings are
      * case-insensitive, and need to be in one of the two following forms:
