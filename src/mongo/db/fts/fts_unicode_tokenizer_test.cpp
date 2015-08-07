@@ -26,8 +26,8 @@
  *    it in the license file.
  */
 
-#include "mongo/db/fts/fts_spec.h"
-#include "mongo/db/fts/fts_tokenizer.h"
+#include "mongo/db/fts/fts_language.h"
+#include "mongo/db/fts/fts_unicode_tokenizer.h"
 #include "mongo/unittest/unittest.h"
 
 namespace mongo {
@@ -40,14 +40,14 @@ std::vector<std::string> tokenizeString(const char* str,
     StatusWithFTSLanguage swl = FTSLanguage::make(language, TEXT_INDEX_VERSION_3);
     ASSERT_OK(swl);
 
-    std::unique_ptr<FTSTokenizer> tokenizer = swl.getValue()->createTokenizer();
+    UnicodeFTSTokenizer tokenizer(swl.getValue());
 
-    tokenizer->reset(str, options);
+    tokenizer.reset(str, options);
 
     std::vector<std::string> terms;
 
-    while (tokenizer->moveNext()) {
-        terms.push_back(tokenizer->get().toString());
+    while (tokenizer.moveNext()) {
+        terms.push_back(tokenizer.get().toString());
     }
 
     return terms;

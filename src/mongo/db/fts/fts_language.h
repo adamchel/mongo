@@ -131,7 +131,7 @@ public:
     static StatusWith<const FTSLanguage*> make(StringData langName,
                                                TextIndexVersion textIndexVersion);
 
-protected:
+private:
     // std::string representation of language in canonical form.
     std::string _canonicalName;
 };
@@ -161,6 +161,7 @@ public:
     std::unique_ptr<FTSTokenizer> createTokenizer() const final;
     const FTSPhraseMatcher& getPhraseMatcher() const final;
 
+private:
     UnicodeFTSPhraseMatcher _unicodePhraseMatcher;
 };
 

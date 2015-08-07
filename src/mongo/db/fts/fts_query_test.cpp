@@ -37,7 +37,7 @@ namespace fts {
 
 TEST(FTSQuery, Basic1) {
     FTSQuery q;
-    ASSERT(q.parse("this is fun", "english", false, false, TEXT_INDEX_VERSION_2).isOK());
+    ASSERT(q.parse("this is fun", "english", false, false, TEXT_INDEX_VERSION_3).isOK());
 
     ASSERT_EQUALS(false, q.getCaseSensitive());
     ASSERT_EQUALS(1U, q.getPositiveTerms().size());
@@ -50,7 +50,7 @@ TEST(FTSQuery, Basic1) {
 
 TEST(FTSQuery, ParsePunctuation) {
     FTSQuery q;
-    ASSERT(q.parse("hello.world", "english", false, false, TEXT_INDEX_VERSION_2).isOK());
+    ASSERT(q.parse("hello.world", "english", false, false, TEXT_INDEX_VERSION_3).isOK());
 
     ASSERT_EQUALS(false, q.getCaseSensitive());
     ASSERT_EQUALS(2U, q.getPositiveTerms().size());
@@ -64,7 +64,7 @@ TEST(FTSQuery, ParsePunctuation) {
 
 TEST(FTSQuery, Neg1) {
     FTSQuery q;
-    ASSERT(q.parse("this is -really fun", "english", false, false, TEXT_INDEX_VERSION_2).isOK());
+    ASSERT(q.parse("this is -really fun", "english", false, false, TEXT_INDEX_VERSION_3).isOK());
 
     ASSERT_EQUALS(1U, q.getPositiveTerms().size());
     ASSERT_EQUALS("fun", *q.getPositiveTerms().begin());
@@ -75,7 +75,7 @@ TEST(FTSQuery, Neg1) {
 
 TEST(FTSQuery, Phrase1) {
     FTSQuery q;
-    ASSERT(q.parse("doing a \"phrase test\" for fun", "english", false, false, TEXT_INDEX_VERSION_2)
+    ASSERT(q.parse("doing a \"phrase test\" for fun", "english", false, false, TEXT_INDEX_VERSION_3)
                .isOK());
 
     ASSERT_EQUALS(3U, q.getPositiveTerms().size());
@@ -90,7 +90,7 @@ TEST(FTSQuery, Phrase1) {
 
 TEST(FTSQuery, Phrase2) {
     FTSQuery q;
-    ASSERT(q.parse("doing a \"phrase-test\" for fun", "english", false, false, TEXT_INDEX_VERSION_2)
+    ASSERT(q.parse("doing a \"phrase-test\" for fun", "english", false, false, TEXT_INDEX_VERSION_3)
                .isOK());
     ASSERT_EQUALS(1U, q.getPositivePhr().size());
     ASSERT_EQUALS("phrase-test", q.getPositivePhr()[0]);
@@ -99,20 +99,20 @@ TEST(FTSQuery, Phrase2) {
 TEST(FTSQuery, NegPhrase1) {
     FTSQuery q;
     ASSERT(
-        q.parse("doing a -\"phrase test\" for fun", "english", false, false, TEXT_INDEX_VERSION_2)
+        q.parse("doing a -\"phrase test\" for fun", "english", false, false, TEXT_INDEX_VERSION_3)
             .isOK());
     ASSERT_EQUALS("fun||||||phrase test", q.debugString());
 }
 
 TEST(FTSQuery, CaseSensitiveOption) {
     FTSQuery q;
-    ASSERT(q.parse("this is fun", "english", true, false, TEXT_INDEX_VERSION_2).isOK());
+    ASSERT(q.parse("this is fun", "english", true, false, TEXT_INDEX_VERSION_3).isOK());
     ASSERT_EQUALS(true, q.getCaseSensitive());
 }
 
 TEST(FTSQuery, CaseSensitivePositiveTerms) {
     FTSQuery q;
-    ASSERT(q.parse("This is Positively fun", "english", true, false, TEXT_INDEX_VERSION_2).isOK());
+    ASSERT(q.parse("This is Positively fun", "english", true, false, TEXT_INDEX_VERSION_3).isOK());
 
     ASSERT_EQUALS(2U, q.getTermsForBounds().size());
     ASSERT_EQUALS(1,
@@ -128,7 +128,7 @@ TEST(FTSQuery, CaseSensitivePositiveTerms) {
 
 TEST(FTSQuery, CaseSensitiveNegativeTerms) {
     FTSQuery q;
-    ASSERT(q.parse("-This -is -Negatively -miserable", "english", true, false, TEXT_INDEX_VERSION_2)
+    ASSERT(q.parse("-This -is -Negatively -miserable", "english", true, false, TEXT_INDEX_VERSION_3)
                .isOK());
 
     ASSERT_EQUALS(0U, q.getPositiveTerms().size());
@@ -142,7 +142,7 @@ TEST(FTSQuery, CaseSensitiveNegativeTerms) {
 
 TEST(FTSQuery, CaseSensitivePositivePhrases) {
     FTSQuery q;
-    ASSERT(q.parse("doing a \"Phrase Test\" for fun", "english", true, false, TEXT_INDEX_VERSION_2)
+    ASSERT(q.parse("doing a \"Phrase Test\" for fun", "english", true, false, TEXT_INDEX_VERSION_3)
                .isOK());
 
     ASSERT_EQUALS(1U, q.getPositivePhr().size());
@@ -152,7 +152,7 @@ TEST(FTSQuery, CaseSensitivePositivePhrases) {
 
 TEST(FTSQuery, CaseSensitiveNegativePhrases) {
     FTSQuery q;
-    ASSERT(q.parse("doing a -\"Phrase Test\" for fun", "english", true, false, TEXT_INDEX_VERSION_2)
+    ASSERT(q.parse("doing a -\"Phrase Test\" for fun", "english", true, false, TEXT_INDEX_VERSION_3)
                .isOK());
 
     ASSERT_EQUALS(0U, q.getPositivePhr().size());
@@ -163,16 +163,16 @@ TEST(FTSQuery, CaseSensitiveNegativePhrases) {
 TEST(FTSQuery, Mix1) {
     FTSQuery q;
     ASSERT(
-        q.parse("\"industry\" -Melbourne -Physics", "english", false, false, TEXT_INDEX_VERSION_2)
+        q.parse("\"industry\" -Melbourne -Physics", "english", false, false, TEXT_INDEX_VERSION_3)
             .isOK());
     ASSERT_EQUALS("industri||melbourn|physic||industry||", q.debugString());
 }
 
 TEST(FTSQuery, NegPhrase2) {
     FTSQuery q1, q2, q3;
-    ASSERT(q1.parse("foo \"bar\"", "english", false, false, TEXT_INDEX_VERSION_2).isOK());
-    ASSERT(q2.parse("foo \"-bar\"", "english", false, false, TEXT_INDEX_VERSION_2).isOK());
-    ASSERT(q3.parse("foo \" -bar\"", "english", false, false, TEXT_INDEX_VERSION_2).isOK());
+    ASSERT(q1.parse("foo \"bar\"", "english", false, false, TEXT_INDEX_VERSION_3).isOK());
+    ASSERT(q2.parse("foo \"-bar\"", "english", false, false, TEXT_INDEX_VERSION_3).isOK());
+    ASSERT(q3.parse("foo \" -bar\"", "english", false, false, TEXT_INDEX_VERSION_3).isOK());
 
     ASSERT_EQUALS(2U, q1.getPositiveTerms().size());
     ASSERT_EQUALS(2U, q2.getPositiveTerms().size());
@@ -193,9 +193,9 @@ TEST(FTSQuery, NegPhrase2) {
 
 TEST(FTSQuery, NegPhrase3) {
     FTSQuery q1, q2, q3;
-    ASSERT(q1.parse("foo -\"bar\"", "english", false, false, TEXT_INDEX_VERSION_2).isOK());
-    ASSERT(q2.parse("foo -\"-bar\"", "english", false, false, TEXT_INDEX_VERSION_2).isOK());
-    ASSERT(q3.parse("foo -\" -bar\"", "english", false, false, TEXT_INDEX_VERSION_2).isOK());
+    ASSERT(q1.parse("foo -\"bar\"", "english", false, false, TEXT_INDEX_VERSION_3).isOK());
+    ASSERT(q2.parse("foo -\"-bar\"", "english", false, false, TEXT_INDEX_VERSION_3).isOK());
+    ASSERT(q3.parse("foo -\" -bar\"", "english", false, false, TEXT_INDEX_VERSION_3).isOK());
 
     ASSERT_EQUALS(1U, q1.getPositiveTerms().size());
     ASSERT_EQUALS(1U, q2.getPositiveTerms().size());
