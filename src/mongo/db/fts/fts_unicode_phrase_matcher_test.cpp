@@ -26,7 +26,7 @@
  *    it in the license file.
  */
 
-#include "mongo/db/fts/fts_language.h"
+#include "mongo/db/fts/fts_unicode_phrase_matcher.h"
 #include "mongo/unittest/unittest.h"
 
 namespace mongo {
@@ -42,10 +42,7 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitive) {
     std::string nofind1 = "bajo lluvia";
     std::string nofind2 = "El Wenceslao";
 
-    StatusWithFTSLanguage swl = FTSLanguage::make("spanish", TEXT_INDEX_VERSION_3);
-    ASSERT_OK(swl);
-
-    const FTSPhraseMatcher& phraseMatcher = swl.getValue()->getPhraseMatcher();
+    UnicodeFTSPhraseMatcher phraseMatcher("spanish");
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kNone;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
@@ -65,10 +62,7 @@ TEST(FtsUnicodePhraseMatcher, CaseSensitiveAndDiacriticInsensitive) {
     std::string nofind1 = "pinguino wenceslao";
     std::string nofind2 = "el pinguino";
 
-    StatusWithFTSLanguage swl = FTSLanguage::make("spanish", TEXT_INDEX_VERSION_3);
-    ASSERT_OK(swl);
-
-    const FTSPhraseMatcher& phraseMatcher = swl.getValue()->getPhraseMatcher();
+    UnicodeFTSPhraseMatcher phraseMatcher("spanish");
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kCaseSensitive;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
@@ -88,10 +82,7 @@ TEST(FtsUnicodePhraseMatcher, CaseInsensitiveAndDiacriticSensitive) {
     std::string nofind1 = "hizo kilometros";
     std::string nofind2 = "pinguino";
 
-    StatusWithFTSLanguage swl = FTSLanguage::make("spanish", TEXT_INDEX_VERSION_3);
-    ASSERT_OK(swl);
-
-    const FTSPhraseMatcher& phraseMatcher = swl.getValue()->getPhraseMatcher();
+    UnicodeFTSPhraseMatcher phraseMatcher("spanish");
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kDiacriticSensitive;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
@@ -111,10 +102,7 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticSensitive) {
     std::string nofind1 = "pinguino Wenceslao";
     std::string nofind2 = "kilómetros BaJo";
 
-    StatusWithFTSLanguage swl = FTSLanguage::make("spanish", TEXT_INDEX_VERSION_3);
-    ASSERT_OK(swl);
-
-    const FTSPhraseMatcher& phraseMatcher = swl.getValue()->getPhraseMatcher();
+    UnicodeFTSPhraseMatcher phraseMatcher("spanish");
     FTSPhraseMatcher::Options options =
         FTSPhraseMatcher::kCaseSensitive | FTSPhraseMatcher::kDiacriticSensitive;
 
@@ -134,10 +122,7 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitiveTurkish) {
     std::string nofind1 = "çabucak GÜVENDI";
     std::string nofind2 = "yagiz sofore";
 
-    StatusWithFTSLanguage swl = FTSLanguage::make("turkish", TEXT_INDEX_VERSION_3);
-    ASSERT_OK(swl);
-
-    const FTSPhraseMatcher& phraseMatcher = swl.getValue()->getPhraseMatcher();
+    UnicodeFTSPhraseMatcher phraseMatcher("turkish");
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kNone;
 
     ASSERT(phraseMatcher.phraseMatches(find1, str, options));
