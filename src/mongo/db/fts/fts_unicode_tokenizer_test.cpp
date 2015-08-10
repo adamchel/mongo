@@ -36,7 +36,6 @@ namespace fts {
 std::vector<std::string> tokenizeString(const char* str,
                                         const char* language,
                                         FTSTokenizer::Options options) {
-    
     StatusWithFTSLanguage swl = FTSLanguage::make(language, TEXT_INDEX_VERSION_3);
     ASSERT_OK(swl);
 

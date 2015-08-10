@@ -50,10 +50,10 @@ namespace fts {
 namespace {
 
 /**
- * Case-insensitive StringData comparator for language string within a tuple.
+ * Case-insensitive StringData comparator.
  */
 struct LanguageStringCompare {
-    /** Returns true if the string in lhs < the string in rhs. */
+    /** Returns true if lhs < rhs. */
     bool operator()(std::string lhs, std::string rhs) const {
         size_t minSize = std::min(lhs.size(), rhs.size());
 
@@ -72,7 +72,7 @@ struct LanguageStringCompare {
     }
 };
 
-// Lookup table from user language string (case-insensitive) and text index version to FTSLanguage.
+// Lookup table from user language string (case-insensitive) to FTSLanguage.
 // Populated by initializers in initializer FTSRegisterV2LanguagesAndLater and initializer
 // FTSRegisterLanguageAliases.  For use with TEXT_INDEX_VERSION_2 text indexes and above.
 typedef std::map<std::string, const FTSLanguage*, LanguageStringCompare> LanguageMap;
@@ -127,7 +127,7 @@ MONGO_FTS_LANGUAGE_LIST(LANGUAGE_DECLV2);
 UnicodeFTSLanguage languageNoneV3("none");
 MONGO_FTS_LANGUAGE_LIST(LANGUAGE_DECLV3);
 
-// Registers each language and language aliases in the language map
+// Registers each language and language aliases in the language map.
 //
 #define LANGUAGE_INITV2(id, name, alias) \
     FTSLanguage::registerLanguage(name, TEXT_INDEX_VERSION_2, &language##id##V2);
@@ -136,7 +136,7 @@ MONGO_FTS_LANGUAGE_LIST(LANGUAGE_DECLV3);
     FTSLanguage::registerLanguage(name, TEXT_INDEX_VERSION_3, &language##id##V3);
 
 /**
- * Registers each language in the language map
+ * Registers each language in the language map.
  */
 MONGO_INITIALIZER_GENERAL(FTSRegisterV2LanguagesAndLater,
                           MONGO_NO_PREREQUISITES,
@@ -157,7 +157,7 @@ MONGO_INITIALIZER_GENERAL(FTSRegisterV2LanguagesAndLater,
     FTSLanguage::registerLanguageAlias(&language##id##V3, alias, TEXT_INDEX_VERSION_3);
 
 /**
- * Registers each language alias in the language map
+ * Registers each language alias in the language map.
  */
 MONGO_INITIALIZER_WITH_PREREQUISITES(FTSRegisterLanguageAliases, ("FTSAllLanguagesRegistered"))
 (InitializerContext* context) {
