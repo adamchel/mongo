@@ -65,6 +65,13 @@ DelimiterListLanguage lang) {
         return false;
     }
 
+    // Most characters are latin letters, so filter those out first.
+    if (codepoint >= 65 && codepoint <= 90) {
+        return false;
+    } else if (codepoint >= 97 && codepoint <= 122) {
+        return false;
+    }
+
     switch (codepoint) {\n""")
 
     for delim in sorted(delim_codepoints):
