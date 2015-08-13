@@ -45,11 +45,15 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitive) {
     UnicodeFTSPhraseMatcher phraseMatcher("spanish");
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kNone;
 
-    ASSERT(phraseMatcher.phraseMatches(find1, str, options));
-    ASSERT(phraseMatcher.phraseMatches(find2, str, options));
+    phraseMatcher.setPhrase(find1);
+    ASSERT(phraseMatcher.phraseMatches(str, options));
+    phraseMatcher.setPhrase(find2);
+    ASSERT(phraseMatcher.phraseMatches(str, options));
 
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind1, str, options));
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind2, str, options));
+    phraseMatcher.setPhrase(nofind1);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str, options));
+    phraseMatcher.setPhrase(nofind2);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str, options));
 }
 
 // Case sensitive & diacritic insensitive match.
@@ -65,11 +69,15 @@ TEST(FtsUnicodePhraseMatcher, CaseSensitiveAndDiacriticInsensitive) {
     UnicodeFTSPhraseMatcher phraseMatcher("spanish");
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kCaseSensitive;
 
-    ASSERT(phraseMatcher.phraseMatches(find1, str, options));
-    ASSERT(phraseMatcher.phraseMatches(find2, str, options));
+    phraseMatcher.setPhrase(find1);
+    ASSERT(phraseMatcher.phraseMatches(str, options));
+    phraseMatcher.setPhrase(find2);
+    ASSERT(phraseMatcher.phraseMatches(str, options));
 
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind1, str, options));
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind2, str, options));
+    phraseMatcher.setPhrase(nofind1);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str, options));
+    phraseMatcher.setPhrase(nofind2);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str, options));
 }
 
 // Case insensitive & diacritic sensitive match.
@@ -85,11 +93,15 @@ TEST(FtsUnicodePhraseMatcher, CaseInsensitiveAndDiacriticSensitive) {
     UnicodeFTSPhraseMatcher phraseMatcher("spanish");
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kDiacriticSensitive;
 
-    ASSERT(phraseMatcher.phraseMatches(find1, str, options));
-    ASSERT(phraseMatcher.phraseMatches(find2, str, options));
+    phraseMatcher.setPhrase(find1);
+    ASSERT(phraseMatcher.phraseMatches(str, options));
+    phraseMatcher.setPhrase(find2);
+    ASSERT(phraseMatcher.phraseMatches(str, options));
 
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind1, str, options));
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind2, str, options));
+    phraseMatcher.setPhrase(nofind1);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str, options));
+    phraseMatcher.setPhrase(nofind2);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str, options));
 }
 
 // Case sensitive & diacritic sensitive match.
@@ -106,11 +118,15 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticSensitive) {
     FTSPhraseMatcher::Options options =
         FTSPhraseMatcher::kCaseSensitive | FTSPhraseMatcher::kDiacriticSensitive;
 
-    ASSERT(phraseMatcher.phraseMatches(find1, str, options));
-    ASSERT(phraseMatcher.phraseMatches(find2, str, options));
+    phraseMatcher.setPhrase(find1);
+    ASSERT(phraseMatcher.phraseMatches(str, options));
+    phraseMatcher.setPhrase(find2);
+    ASSERT(phraseMatcher.phraseMatches(str, options));
 
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind1, str, options));
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind2, str, options));
+    phraseMatcher.setPhrase(nofind1);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str, options));
+    phraseMatcher.setPhrase(nofind2);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str, options));
 }
 
 // Case insensitive & diacritic insensitive match.
@@ -125,11 +141,15 @@ TEST(FtsUnicodePhraseMatcher, CaseAndDiacriticInsensitiveTurkish) {
     UnicodeFTSPhraseMatcher phraseMatcher("turkish");
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kNone;
 
-    ASSERT(phraseMatcher.phraseMatches(find1, str, options));
-    ASSERT(phraseMatcher.phraseMatches(find2, str, options));
+    phraseMatcher.setPhrase(find1);
+    ASSERT(phraseMatcher.phraseMatches(str, options));
+    phraseMatcher.setPhrase(find2);
+    ASSERT(phraseMatcher.phraseMatches(str, options));
 
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind1, str, options));
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind2, str, options));
+    phraseMatcher.setPhrase(nofind1);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str, options));
+    phraseMatcher.setPhrase(nofind2);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str, options));
 }
 
 

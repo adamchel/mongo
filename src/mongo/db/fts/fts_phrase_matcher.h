@@ -58,12 +58,12 @@ public:
      */
     static const int kDiacriticSensitive = 1 << 1;
 
+    virtual void setPhrase(const std::string& phrase);
+
     /**
      * Does the string 'phrase' occur in the string 'haystack'?
      */
-    virtual bool phraseMatches(const std::string& phrase,
-                               const std::string& haystack,
-                               Options options) const = 0;
+    virtual bool phraseMatches(const std::string& haystack, Options options) const = 0;
 };
 
 }  // namespace fts

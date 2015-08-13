@@ -46,11 +46,16 @@ TEST(FtsBasicPhraseMatcher, CaseInsensitive) {
     BasicFTSPhraseMatcher phraseMatcher;
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kNone;
 
-    ASSERT(phraseMatcher.phraseMatches(find1, str1, options));
-    ASSERT(phraseMatcher.phraseMatches(find2, str2, options));
+    phraseMatcher.setPhrase(find1);
+    ASSERT(phraseMatcher.phraseMatches(str1, options));
 
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind1, str1, options));
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind2, str2, options));
+    phraseMatcher.setPhrase(find2);
+    ASSERT(phraseMatcher.phraseMatches(str2, options));
+
+    phraseMatcher.setPhrase(nofind1);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str1, options));
+    phraseMatcher.setPhrase(nofind2);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str2, options));
 }
 
 // Case sensitive match.
@@ -66,11 +71,15 @@ TEST(FtsBasicPhraseMatcher, CaseSensitive) {
     BasicFTSPhraseMatcher phraseMatcher;
     FTSPhraseMatcher::Options options = FTSPhraseMatcher::kCaseSensitive;
 
-    ASSERT(phraseMatcher.phraseMatches(find1, str1, options));
-    ASSERT(phraseMatcher.phraseMatches(find2, str2, options));
+    phraseMatcher.setPhrase(find1);
+    ASSERT(phraseMatcher.phraseMatches(str1, options));
+    phraseMatcher.setPhrase(find2);
+    ASSERT(phraseMatcher.phraseMatches(str2, options));
 
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind1, str1, options));
-    ASSERT_FALSE(phraseMatcher.phraseMatches(nofind2, str2, options));
+    phraseMatcher.setPhrase(nofind1);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str1, options));
+    phraseMatcher.setPhrase(nofind2);
+    ASSERT_FALSE(phraseMatcher.phraseMatches(str2, options));
 }
 
 }  // namespace fts

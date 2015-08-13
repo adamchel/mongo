@@ -144,6 +144,8 @@ bool FTSMatcher::negativePhrasesMatch(const BSONObj& obj) const {
 bool FTSMatcher::_phraseMatch(const string& phrase, const BSONObj& obj) const {
     FTSElementIterator it(_spec, obj);
 
+    bool phraseSet = false;
+
     while (it.more()) {
         FTSIteratorValue val = it.next();
 
@@ -156,7 +158,12 @@ bool FTSMatcher::_phraseMatch(const string& phrase, const BSONObj& obj) const {
             matcherOptions |= FTSPhraseMatcher::kDiacriticSensitive;
         }
 
-        if (val._language->getPhraseMatcher().phraseMatches(phrase, val._text, matcherOptions)) {
+        if(!phraseSet) {
+            val._language->getPhraseMatcher().setPhrase(phrase);
+            phraseSet = true;
+        }
+
+        if (val._language->getPhraseMatcher().phraseMatches(val._text, matcherOptions)) {
             return true;
         }
     }

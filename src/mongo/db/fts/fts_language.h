@@ -93,7 +93,7 @@ public:
     /**
      * Returns a reference to the phrase matcher instance that this language owns.
      */
-    virtual const FTSPhraseMatcher& getPhraseMatcher() const = 0;
+    virtual FTSPhraseMatcher& getPhraseMatcher() = 0;
 
     /**
      * Register std::string 'languageName' as a new language with the text index version
@@ -145,7 +145,7 @@ typedef StatusWith<const FTSLanguage*> StatusWithFTSLanguage;
 class BasicFTSLanguage : public FTSLanguage {
 public:
     std::unique_ptr<FTSTokenizer> createTokenizer() const final;
-    const FTSPhraseMatcher& getPhraseMatcher() const final;
+    FTSPhraseMatcher& getPhraseMatcher() final;
 
 private:
     BasicFTSPhraseMatcher _basicPhraseMatcher;
@@ -159,7 +159,7 @@ class UnicodeFTSLanguage : public FTSLanguage {
 public:
     UnicodeFTSLanguage(const std::string& languageName) : _unicodePhraseMatcher(languageName) {}
     std::unique_ptr<FTSTokenizer> createTokenizer() const final;
-    const FTSPhraseMatcher& getPhraseMatcher() const final;
+    FTSPhraseMatcher& getPhraseMatcher() final;
 
 private:
     UnicodeFTSPhraseMatcher _unicodePhraseMatcher;

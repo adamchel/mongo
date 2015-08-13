@@ -31,6 +31,7 @@
 #include "mongo/base/disallow_copying.h"
 #include "mongo/db/fts/fts_phrase_matcher.h"
 #include "mongo/db/fts/unicode/codepoints.h"
+#include "mongo/db/fts/unicode/string.h"
 
 namespace mongo {
 namespace fts {
@@ -52,12 +53,25 @@ class UnicodeFTSPhraseMatcher final : public FTSPhraseMatcher {
 public:
     UnicodeFTSPhraseMatcher(const std::string& language);
 
-    bool phraseMatches(const std::string& phrase,
-                       const std::string& haystack,
-                       Options options) const override;
+    void setPhrase(const std::string& phrase) override;
+
+    bool phraseMatches(const std::string& haystack, Options options) const override;
 
 private:
+    bool substrMatch(unicode::String& str,
+                     unicode::String& find,
+                     unicode::String::SubstrMatchOptions options,
+                     unicode::CaseFoldMode cfMode);
+
     unicode::CaseFoldMode _caseFoldMode;
+
+    unicode::String _masterPhraseBuffer;
+
+    unicode::String _phraseBuffer;
+    unicode::String _haystackBuffer;
+
+    unicode::String _diacriticFreePhraseBuffer;
+    unicode::String _diacriticFreeHaystackBuffer;
 };
 
 }  // namespace fts

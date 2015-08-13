@@ -35,14 +35,16 @@ namespace fts {
 
 using std::string;
 
-bool BasicFTSPhraseMatcher::phraseMatches(const string& phrase,
-                                          const string& haystack,
-                                          Options options) const {
+void BasicFTSPhraseMatcher::setPhrase(const string& phrase) {
+    _phrase = phrase;
+}
+
+bool BasicFTSPhraseMatcher::phraseMatches(const string& haystack, Options options) const {
     if (options & kCaseSensitive) {
-        return haystack.find(phrase) != string::npos;
+        return haystack.find(_phrase) != string::npos;
     }
 
-    return strcasestr(haystack.c_str(), phrase.c_str()) != NULL;
+    return strcasestr(haystack.c_str(), _phrase.c_str()) != NULL;
 }
 
 }  // namespace fts

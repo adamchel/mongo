@@ -303,7 +303,7 @@ std::unique_ptr<FTSTokenizer> BasicFTSLanguage::createTokenizer() const {
     return stdx::make_unique<BasicFTSTokenizer>(this);
 }
 
-const FTSPhraseMatcher& BasicFTSLanguage::getPhraseMatcher() const {
+FTSPhraseMatcher& BasicFTSLanguage::getPhraseMatcher() const {
     return _basicPhraseMatcher;
 }
 
@@ -311,7 +311,7 @@ std::unique_ptr<FTSTokenizer> UnicodeFTSLanguage::createTokenizer() const {
     return stdx::make_unique<UnicodeFTSTokenizer>(this);
 }
 
-const FTSPhraseMatcher& UnicodeFTSLanguage::getPhraseMatcher() const {
+FTSPhraseMatcher& UnicodeFTSLanguage::getPhraseMatcher() const {
     return _unicodePhraseMatcher;
 }
 }

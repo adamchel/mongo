@@ -36,6 +36,8 @@ namespace fts {
 
 using std::string;
 
+using unicode::CaseFoldMode;
+
 UnicodeFTSPhraseMatcher::UnicodeFTSPhraseMatcher(const string& language) {
     if (language == "turkish") {
         _caseFoldMode = unicode::CaseFoldMode::kTurkish;
@@ -44,10 +46,13 @@ UnicodeFTSPhraseMatcher::UnicodeFTSPhraseMatcher(const string& language) {
     }
 }
 
-bool UnicodeFTSPhraseMatcher::phraseMatches(const string& phrase,
-                                            const string& haystack,
-                                            Options options) const {
+void UnicodeFTSPhraseMatcher::setPhrase(const string& phrase) {
+    _masterPhraseBuffer = unicode::String(phrase);
+}
+
+bool UnicodeFTSPhraseMatcher::phraseMatches(const string& haystack, Options options) const {
     unicode::String::SubstrMatchOptions matchOptions = unicode::String::kNone;
+    _haystackBuffer.resetData(haystack);
 
     if (options & kCaseSensitive) {
         matchOptions |= unicode::String::kCaseSensitive;
@@ -57,8 +62,48 @@ bool UnicodeFTSPhraseMatcher::phraseMatches(const string& phrase,
         matchOptions |= unicode::String::kDiacriticSensitive;
     }
 
-    return unicode::String::substrMatch(
-        unicode::String(haystack), unicode::String(phrase), matchOptions, _caseFoldMode);
+    _masterPhraseBuffer.copyToBuf(_phraseBuffer);
+    return substrMatch(_haystackBuffer, _phraseBuffer, matchOptions, _caseFoldMode);
+}
+
+bool substrMatch(unicode::String& str, unicode::String& find, SubstrMatchOptions options, CaseFoldMode cfMode) {
+    // In Turkish, lowercasing needs to be applied first because the letter İ has a different case
+    // folding mapping than the letter I, but removing diacritics removes the dot from İ.
+    if (cfMode == CaseFoldMode::kTurkish) {
+        str.toLowerToBuf(str);
+        find.toLowerToBuf(find);
+        return substrMatch(str, find, options | kCaseSensitive, CaseFoldMode::kNormal);
+    }
+
+    if (options & kDiacriticSensitive) {
+        if (options & kCaseSensitive) {
+            // Case sensitive and diacritic sensitive.
+            return std::search(str._data.cbegin(),
+                               str._data.cend(),
+                               find._data.cbegin(),
+                               find._data.cend(),
+                               [&](char32_t c1, char32_t c2) { return (c1 == c2); }) !=
+                str._data.cend();
+        }
+
+        // Case insensitive and diacritic sensitive.
+        return std::search(str._data.cbegin(),
+                           str._data.cend(),
+                           find._data.cbegin(),
+                           find._data.cend(),
+                           [&](char32_t c1, char32_t c2) {
+                               return (codepointToLower(c1, cfMode) ==
+                                       codepointToLower(c2, cfMode));
+                           }) != str._data.cend();
+    }
+
+    str.removeDiacriticsToBuf(_diacriticFreeHaystackBuffer);
+    find.removeDiacriticsToBuf(_diacriticFreePhraseBuffer);
+
+    return substrMatch(_diacriticFreeHaystackBuffer,
+                       _diacriticFreePhraseBuffer,
+                       options | kDiacriticSensitive,
+                       cfMode);
 }
 
 }  // namespace fts
