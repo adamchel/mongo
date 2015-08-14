@@ -1,0 +1,5 @@
+most new work is being done in UnicodeFTSTokenizer::moveNext().
+
+codepointToLower and codepointRemoveDiacritic have minimal performance impact, codepointIsDelimiter is very hot because every character touches it.
+
+conversion from UTF-8 to codepoint is not too bad, but it seems like codepoint to UTF-8 is very expensive
